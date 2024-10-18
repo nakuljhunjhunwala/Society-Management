@@ -37,7 +37,7 @@ router.get(
 
 /**
  * @swagger
- * /:
+ * /society/:
  *   post:
  *     summary: Create a new society
  *     description: Create a new society with the provided details.
