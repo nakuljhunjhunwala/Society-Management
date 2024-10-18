@@ -26,8 +26,8 @@
             "@model/*": [
                 "src/model/*"
             ],
-            "@middlewares/*": [
-                "src/middlewares/*"
+            "@middleware/*": [
+                "src/middleware/*"
             ],
             "@utils/*": [
                 "src/utils/*"
@@ -40,6 +40,9 @@
             ],
             "@types/*": [
                 "src/types/*"
+            ],
+            "@interfaces/*": [
+                "src/interfaces/*"
             ]
         }
     },

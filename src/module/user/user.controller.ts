@@ -1,5 +1,6 @@
 import { WrappedRequest } from '@utils/wrapper.util.js';
 import { UserService } from './user.service.js';
+import { UpdateMe } from './dto/me.dto.js';
 
 export class UserController {
   private userService: UserService;
@@ -10,7 +11,22 @@ export class UserController {
 
   async me({ user }: WrappedRequest) {
     try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
       const result = await this.userService.me(user.userId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateMe({ user, body }: WrappedRequest<UpdateMe>) {
+    try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
+      const result = await this.userService.updateMe(user.userId, body);
       return result;
     } catch (error) {
       throw error;

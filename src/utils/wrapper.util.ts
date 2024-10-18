@@ -1,20 +1,23 @@
 import { Request, Response } from 'express';
 import { handleError, handleSuccess } from './response.util.js';
+import { ResponseUser } from '@interfaces/user.interface.js';
 
 export interface WrappedRequest<
   B = any,
   H = any,
   P = any,
   Q = any,
-  U = any,
-  K = any,
+  U = ResponseUser,
+  K = string,
+  S = string,
 > {
   body: B;
   headers: H;
   params: P;
   query: Q;
-  user: U;
+  user?: U;
   deviceId: K;
+  societyId?: S;
 }
 
 type ControllerMethod<B = any, H = any, P = any, Q = any> = (
@@ -45,7 +48,8 @@ export class WrapperClass<T extends Record<string, any>> {
                 params: req.params,
                 query: req.query,
                 user: req.user,
-                deviceId: req.deviceId,
+                deviceId: req.deviceId!,
+                societyId: req.societyId!,
               };
 
               // Call the bound method with the wrapped request

@@ -16,4 +16,27 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async update(id: string, user: Partial<IUser>): Promise<IUser | null> {
+    try {
+      delete user.password;
+      delete user.email;
+      delete user.societies;
+      delete user._id;
+
+      const result = await this.userRespository.updateUser(id, user);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<IUser | null> {
+    try {
+      const result = await this.userRespository.findByEmail(email);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -16,4 +16,13 @@ export class UserService {
       throw error;
     }
   }
+
+  async updateMe(id: string, user: Partial<IUser>): Promise<IUser | null> {
+    try {
+      const updatedUser = await this.userRepository.update(id, user);
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

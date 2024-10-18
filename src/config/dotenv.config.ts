@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const getEnvFileName = (): string => {
-  const env = process.env.NODE_ENV || 'dev'; // Default to 'development'
+  const env = process.env.NODE_ENV || 'dev'; // Default to 'dev'
   switch (env) {
     case 'prod':
       return '.env.prod';
@@ -13,18 +13,19 @@ const getEnvFileName = (): string => {
       return '.env';
   }
 };
-
-export const getEnv = (key: string) => {
+if (process.env.NODE_ENV !== 'prod') {
   const fileName = getEnvFileName();
-
   const envConfig = dotenv.config({
     path: path.join(process.cwd(), '/', fileName),
   });
 
-  if (envConfig.parsed) {
-    return envConfig.parsed[key] || process.env[key];
-  } else {
+  if (envConfig.error) {
     console.error(`Failed to load .env file: ${envConfig.error}`);
-    return process.env[key];
   }
+} else {
+  dotenv.config();
+}
+
+export const getEnv = (key: string) => {
+  return process.env[key]; // Prioritize system-level environment variables
 };

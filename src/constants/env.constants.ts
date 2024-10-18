@@ -10,3 +10,6 @@ export const jwtRefreshSecret = getEnv('JWT_REFRESH_SECRET');
 export const accessTokenExpiry = getEnv('ACCESS_TOKEN_EXPIRY');
 export const refreshTokenExpiry = getEnv('REFRESH_TOKEN_EXPIRY');
 export const debugInConsole = getEnv('DEBUG_CONSOLE');
+export const logToFile = getEnv('LOG_TO_FILE');
+export const baseUrl = getEnv('BASE_URL');
+

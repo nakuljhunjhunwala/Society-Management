@@ -3,7 +3,7 @@ import path from 'path';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid'; // Use uuid library to generate unique session ids
-import { debugInConsole } from '@constants/env.constants.js';
+import { debugInConsole, logToFile } from '@constants/env.constants.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,29 +13,37 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 interface LoggerOptions {
   logToConsole?: boolean;
   logLevel?: LogLevel;
+  logToFile?: boolean;
 }
 
 class Logger {
   private static instance: Logger;
   private logFilePath: string;
   private logToConsole: boolean;
+  private logToFile: boolean;
   private logLevel: LogLevel;
   private sessionId: string;
 
   private constructor(
-    options: LoggerOptions = { logToConsole: true, logLevel: 'info' },
+    options: LoggerOptions = {
+      logToConsole: true,
+      logLevel: 'info',
+      logToFile: true,
+    },
   ) {
     const logDir = path.resolve(__dirname, '../../logs');
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
-    }
-
     this.sessionId = new Date().toISOString();
 
     // Create a log file with the session ID in its name
     this.logFilePath = path.join(logDir, `${this.sessionId}.log`);
     this.logToConsole = options.logToConsole!;
     this.logLevel = options.logLevel!;
+    this.logToFile = options.logToFile!;
+    if (this.logToFile) {
+      if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+    }
   }
 
   private writeLog(
@@ -50,7 +58,9 @@ class Logger {
       : logMessage;
 
     // Append the log message to the session-specific log file
-    fs.appendFileSync(this.logFilePath, fullLogMessage + '\n');
+    if (this.logToFile) {
+      fs.appendFileSync(this.logFilePath, fullLogMessage + '\n');
+    }
 
     if (this.logToConsole == true && this.shouldLog(level)) {
       const formattedMessage = this.getColoredMessage(
@@ -128,6 +138,7 @@ class Logger {
 Logger.init({
   logToConsole: JSON.parse(debugInConsole?.toLowerCase() || 'false'),
   logLevel: 'debug',
+  logToFile: JSON.parse(logToFile?.toLowerCase() || 'true'),
 });
 
 export const logger = {

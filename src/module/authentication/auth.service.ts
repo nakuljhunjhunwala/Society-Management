@@ -6,18 +6,29 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from '@utils/jwt.util.js';
+import { UserRepository } from '@module/user/user.respository.js';
 
 export class AuthService {
   private authRepository: AuthRepository;
+  private userRespository: UserRepository;
 
   constructor() {
     this.authRepository = new AuthRepository();
+    this.userRespository = new UserRepository();
   }
 
   async register(
     createUserDto: RegisterUserDto,
     deviceId: string,
   ): Promise<any> {
+    const user = await this.userRespository.getUserByEmail(createUserDto.email);
+    if (user) {
+      throw {
+        status: 400,
+        message: 'User already exists',
+      };
+    }
+
     const userDetails = await this.authRepository.createUser(createUserDto);
 
     const payload = {

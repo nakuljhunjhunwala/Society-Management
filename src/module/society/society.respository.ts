@@ -1,0 +1,48 @@
+import { roles } from '@constants/common.constants.js';
+import { SocietyModelRepository } from '@model/society/society.respository.js';
+import { IUser } from '@model/user/user.model.js';
+import { UserModelRepository } from '@model/user/user.respository.js';
+
+export class SocietyRepository {
+  private userRespository: UserModelRepository;
+  private societyRespository: SocietyModelRepository;
+
+  constructor() {
+    this.userRespository = new UserModelRepository();
+    this.societyRespository = new SocietyModelRepository();
+  }
+
+  async getMySocieties(id: string): Promise<IUser['societies']> {
+    try {
+      const result = await this.userRespository.findById(id);
+
+      await result?.populate('societies.societyId');
+
+      return result?.['societies'] || [];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createSociety(userId: string, society: any) {
+    try {
+      const result = await this.societyRespository.createSocietyAndAddRole(
+        society,
+        userId,
+        roles.SECRETARY,
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getMembers(societyId: string) {
+    try {
+      const result = await this.userRespository.findSocietyMembers(societyId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+}

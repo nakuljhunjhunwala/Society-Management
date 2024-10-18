@@ -10,14 +10,14 @@ export class AuthController {
 
   async refresh({ headers, deviceId }: WrappedRequest) {
     try {
-      if (!headers.refreshtoken) {
+      if (!headers['x-refresh-token']) {
         throw {
           status: 400,
           message: 'Refresh Token Missing',
         };
       }
       const result = await this.authService.refresh(
-        headers.refreshtoken,
+        headers['x-refresh-token'],
         deviceId,
       );
       return {
@@ -56,6 +56,9 @@ export class AuthController {
 
   async logout({ deviceId, user }: WrappedRequest) {
     try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
       await this.authService.logout(user?.userId, deviceId);
       return {
         status: 200,
@@ -67,6 +70,9 @@ export class AuthController {
 
   async logAllOut({ user }: WrappedRequest) {
     try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
       await this.authService.logAlOut(user?.userId);
       return {
         status: 200,
