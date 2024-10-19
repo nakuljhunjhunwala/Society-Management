@@ -1,9 +1,8 @@
-import dotenv from 'dotenv';
+import '@config/dotenv.config.js';
 import { connectDB } from '@config/db.config.js';
 import { port } from '@constants/env.constants.js';
 import createRedisClient from '@config/redis.config.js';
 import { logger } from './logger/logger.js';
-dotenv.config();
 
 logger.info('Logger is working'); // Add this line to see if it compiles
 
