@@ -45,4 +45,19 @@ export class SocietyController {
       throw error;
     }
   }
+
+  async getMyPendingMaintenance({ user, societyId }: WrappedRequest) {
+    try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
+      if (!societyId) {
+        throw new Error('Society ID is required');
+      }
+      const result = await this.societyService.getMyPendingMaintenance(user.userId, societyId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

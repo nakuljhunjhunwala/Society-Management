@@ -2,6 +2,12 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## Created By
+
+- **Nakul Jhunjhunwala** - [GitHub Profile](https://github.com/nakuljhunjhunwala)
+- **Role**: Developer / Maintainer
+- **Email**: jhunjhunwalanakul@gmail.com
+
 A powerful and flexible boilerplate for building scalable and maintainable web applications using Express and TypeScript. This template is designed to follow a modular architecture, similar to [Nest.js](https://nestjs.com/), allowing for easy expansion and management of your projects.
 
 ## Table of Contents

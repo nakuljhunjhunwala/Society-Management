@@ -1,15 +1,19 @@
 import { roles } from '@constants/common.constants.js';
+import { MaintenancePaymentModelRepository } from '@model/maintenancePayment/maintenancePayment.respository.js';
 import { SocietyModelRepository } from '@model/society/society.respository.js';
 import { IUser } from '@model/user/user.model.js';
 import { UserModelRepository } from '@model/user/user.respository.js';
+import { CreateSocietyDto } from './dto/society.dto.js';
 
 export class SocietyRepository {
   private userRespository: UserModelRepository;
   private societyRespository: SocietyModelRepository;
+  private mantainancePaymentRespository: MaintenancePaymentModelRepository;
 
   constructor() {
     this.userRespository = new UserModelRepository();
     this.societyRespository = new SocietyModelRepository();
+    this.mantainancePaymentRespository = new MaintenancePaymentModelRepository();
   }
 
   async getMySocieties(id: string): Promise<IUser['societies']> {
@@ -24,7 +28,7 @@ export class SocietyRepository {
     }
   }
 
-  async createSociety(userId: string, society: any) {
+  async createSociety(userId: string, society: CreateSocietyDto) {
     try {
       const result = await this.societyRespository.createSocietyAndAddRole(
         society,
@@ -41,6 +45,39 @@ export class SocietyRepository {
     try {
       const result = await this.userRespository.findSocietyMembers(societyId);
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserBySocietyIdAndUserId(societyId: string, userId: string) {
+    try {
+      const result = await this.userRespository.getUserBySocietyIdAndUserId(
+        societyId,
+        userId,
+      );
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getSocietyById(societyId: string) {
+    try {
+      const result = await this.societyRespository.getSocietyById(societyId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getMyMantainancePayments(societyId: string, flatNo: string) {
+    try {
+      const result = await this.mantainancePaymentRespository.getMaintenancePaymentBySoceityIdAndFlat(
+        societyId,
+        flatNo,
+      );
+      return result || [];
     } catch (error) {
       throw error;
     }

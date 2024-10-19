@@ -7,6 +7,7 @@ import {
   verifyRefreshToken,
 } from '@utils/jwt.util.js';
 import { UserRepository } from '@module/user/user.respository.js';
+import { IUser } from '@model/user/user.model.js';
 
 export class AuthService {
   private authRepository: AuthRepository;
@@ -21,19 +22,25 @@ export class AuthService {
     createUserDto: RegisterUserDto,
     deviceId: string,
   ): Promise<any> {
-    const user = await this.userRespository.getUserByEmail(createUserDto.email);
-    if (user) {
+    const user = await this.userRespository.getUserByPhone(createUserDto.phoneNo);
+    if (user && user.hasRegistered) {
       throw {
         status: 400,
         message: 'User already exists',
       };
     }
 
-    const userDetails = await this.authRepository.createUser(createUserDto);
+    let userDetails: IUser | null = null
 
-    const payload = {
-      userId: userDetails?._id,
-    };
+    if (user && !user?.hasRegistered) {
+      userDetails = await this.userRespository.markUserAsVerifiedAndAddPassword(user.id, createUserDto.password);
+    } else {
+      const data: Partial<IUser> = { ...createUserDto, hasRegistered: true };
+      userDetails = await this.authRepository.createUser(data);
+    }
+
+    const payload = this.generatePayload(userDetails!);
+
     const token = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
@@ -51,15 +58,14 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto, deviceId: string): Promise<any> {
     try {
-      const { email, password } = loginUserDto;
+      const { phoneNo, password } = loginUserDto;
       const userDetails = await this.authRepository.comparePassword(
-        email,
+        phoneNo,
         password,
       );
 
-      const payload = {
-        userId: userDetails?._id,
-      };
+      const payload = this.generatePayload(userDetails!);
+
       const token = generateAccessToken(payload);
       const refreshToken = generateRefreshToken(payload);
 
@@ -96,7 +102,7 @@ export class AuthService {
 
       let newRefreshToken = refreshToken;
 
-      const newToken = generateRefreshToken({ userId: userId });
+      const newToken = generateRefreshToken(payload);
       tokenDoc.token = refreshToken;
       const updatedData = await this.authRepository.updateToken(
         tokenDoc._id as string,
@@ -106,7 +112,7 @@ export class AuthService {
         newRefreshToken = newToken;
       }
 
-      const newAccessToken = generateAccessToken({ userId: userId });
+      const newAccessToken = generateAccessToken(payload);
       return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     } catch (err) {
       throw err;
@@ -129,5 +135,19 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  private generatePayload(user: IUser) {
+    const payload: { userId: any; username: string; role: { [key: string]: any } } = {
+      userId: user._id,
+      username: user.username,
+      role: {}
+    };
+
+    user.societies.forEach((society) => {
+      payload.role[society.societyId.toString()] = society.role;
+    });
+
+    return payload;
   }
 }

@@ -1,7 +1,6 @@
 // /src/app.ts
 import 'reflect-metadata';
 import express from 'express';
-import { logger } from './logger/logger.js';
 import healthRoute from '@module/health/health.route.js';
 import userRoute from '@module/user/user.route.js';
 import societyRoute from '@module/society/society.route.js';
@@ -11,10 +10,7 @@ import { generateDeviceIdMiddleware } from './middleware/deviceId-generator.midd
 import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import { swaggerDocs, swaggerUiOptions } from '@config/swagger.config.js';
-
-
 const app = express();
-
 
 // Serve Swagger API documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerUiOptions));

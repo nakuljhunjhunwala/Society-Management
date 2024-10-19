@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
-import app from './app.js';
 import { connectDB } from '@config/db.config.js';
 import { port } from '@constants/env.constants.js';
+import createRedisClient from '@config/redis.config.js';
+import { logger } from './logger/logger.js';
 dotenv.config();
 
 logger.info('Logger is working'); // Add this line to see if it compiles
@@ -11,9 +12,11 @@ const PORT = port || 3000;
 // Start the server and connect to the database
 const startServer = async () => {
   try {
-    await connectDB(); // Connect to the database
-    logger.info('Database connected successfully');
-
+    await Promise.all([
+      connectDB(),
+      createRedisClient(),
+    ]);
+    const app = (await import('./app.js')).default;
     app.listen(PORT, () => {
       logger.info(`Server is running on http://localhost:${PORT}`);
     });

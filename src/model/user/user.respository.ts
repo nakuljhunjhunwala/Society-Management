@@ -6,6 +6,10 @@ class UserModelRepository {
     return User.findOne({ email }).exec();
   }
 
+  async findByPhoneNo(phoneNo: number): Promise<IUser | null> {
+    return User.findOne({ phoneNo }).exec();
+  }
+
   async findById(id: string): Promise<IUser | null> {
     return User.findById(id).select('-password').exec();
   }
@@ -15,9 +19,20 @@ class UserModelRepository {
     return newUser.save();
   }
 
-  async compareUserByPassword(email: string, password: string): Promise<IUser> {
+  async markUserAsVerifiedAndAddPassword(id: string, password: string): Promise<IUser | null> {
+    return await User.findByIdAndUpdate(
+      id,
+      {
+        hasRegistered: true,
+        password,
+      },
+      { new: true },
+    )
+  }
+
+  async compareUserByPassword(phoneNo: number, password: string): Promise<IUser> {
     try {
-      const user = await this.findByEmail(email);
+      const user = await this.findByPhoneNo(phoneNo);
       const isValid = await user?.comparePassword(password);
       if (isValid) {
         return user!;
@@ -34,7 +49,7 @@ class UserModelRepository {
   async updateUser(id: string, user: Partial<IUser>): Promise<IUser> {
     // Santinze user object
     delete user.password;
-    delete user.email;
+    delete user.phoneNo;
 
     return User.findByIdAndUpdate(id, user, {
       new: true,
@@ -101,6 +116,16 @@ class UserModelRepository {
       },
       { new: true, runValidators: true, session },
     );
+  }
+
+  async getUserBySocietyIdAndUserId(societyId: string, userId: string): Promise<IUser | null> {
+    console.log('societyId', societyId);
+    console.log('userId', userId);
+
+    return await User.findOne({
+      _id: userId,
+      'societies.societyId': societyId,
+    }).lean();
   }
 }
 

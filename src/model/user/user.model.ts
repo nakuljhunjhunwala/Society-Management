@@ -5,6 +5,7 @@ export interface ISocietyMembership {
   societyId: Schema.Types.ObjectId;
   role: roles;
   joinedAt: Date;
+  flats: string[];
 }
 
 export interface IUser extends Document {
@@ -16,6 +17,9 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   profilePhoto: string;
+  phoneNo: number;
+  countryCode: string;
+  hasRegistered: boolean;
 }
 
 const SocietyMembershipSchema: Schema = new Schema({
@@ -33,6 +37,10 @@ const SocietyMembershipSchema: Schema = new Schema({
     type: Date,
     default: Date.now,
   },
+  flats: {
+    type: [String],
+    default: [],
+  }
 });
 
 const UserSchema: Schema = new Schema(
@@ -44,12 +52,27 @@ const UserSchema: Schema = new Schema(
     },
     email: {
       type: String,
-      required: true,
       unique: true,
     },
     password: {
       type: String,
       required: true,
+    },
+    phoneNo: {
+      type: Number,
+      required: true,
+      unique: true,
+      min: 1000000000,
+      max: 9999999999,
+    },
+    countryCode: {
+      type: String,
+      required: true,
+      default: '+91',
+    },
+    hasRegistered: {
+      type: Boolean,
+      default: false,
     },
     profilePhoto: {
       type: String,
@@ -60,7 +83,6 @@ const UserSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-// Pre-save hook to hash password
 UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -68,10 +90,39 @@ UserSchema.pre<IUser>('save', async function (next) {
   next();
 });
 
-UserSchema.pre<IUser>('updateOne', async function (next) {
-  if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+UserSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate() as any;
+  if (!update) {
+    return next();
+  }
+  if (update.password) {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      update.password = await bcrypt.hash(update.password, salt);
+      this.setUpdate(update);
+      next();
+    } catch (err) {
+      next(err as any);
+    }
+  } else {
+    next();
+  }
+});
+
+SocietyMembershipSchema.pre<ISocietyMembership>('save', function (next) {
+  this.flats = this.flats.map((flat) => flat.toUpperCase());
+  next();
+});
+
+SocietyMembershipSchema.pre('findOneAndUpdate', function (next) {
+  const update = this.getUpdate() as any;
+  if (!update) {
+    return next();
+  }
+  if (update.flats) {
+    update.flats = update.flats.map((flat: string) => flat.toUpperCase());
+    this.setUpdate(update);
+  }
   next();
 });
 

@@ -7,14 +7,22 @@ import { Request, Response, NextFunction } from 'express';
 export function validateRequest<T>(dtoClass: any) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const dtoObj = plainToInstance(dtoClass, req.body);
-    const errors: ValidationError[] = await validate(dtoObj,{
+    const errors: ValidationError[] = await validate(dtoObj, {
       whitelist: true
     });
 
     if (errors.length > 0) {
-      const messages = errors
-        .map((error) => Object.values(error.constraints || {}))
-        .flat();
+      const extractErrors = (errors: ValidationError[]): string[] => {
+        return errors.flatMap((error) => {
+          if (error.children && error.children.length > 0) {
+            return extractErrors(error.children);
+          }
+          return Object.values(error.constraints || {});
+        });
+      };
+
+      const messages = extractErrors(errors);
+
       return handleError(res, messages);
     } else {
       req.body = dtoObj; // if validation passes, replace body with the validated object

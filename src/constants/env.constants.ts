@@ -12,4 +12,7 @@ export const refreshTokenExpiry = getEnv('REFRESH_TOKEN_EXPIRY');
 export const debugInConsole = getEnv('DEBUG_CONSOLE');
 export const logToFile = getEnv('LOG_TO_FILE');
 export const baseUrl = getEnv('BASE_URL');
+export const redisHost = getEnv('REDIS_HOST');
+export const redisPort = getEnv('REDIS_PORT');
+export const redisPassword = getEnv('REDIS_PASSWORD');
 

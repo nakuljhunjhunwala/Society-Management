@@ -16,10 +16,10 @@ export class AuthRepository {
     return this.userRespository.createUser(user);
   }
 
-  async comparePassword(email: string, password: string): Promise<IUser> {
+  async comparePassword(phoneNo: number, password: string): Promise<IUser> {
     try {
       const result = await this.userRespository.compareUserByPassword(
-        email,
+        phoneNo,
         password,
       );
       return result;

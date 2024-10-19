@@ -39,4 +39,22 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async getUserByPhone(phone: number): Promise<IUser | null> {
+    try {
+      const result = await this.userRespository.findByPhoneNo(phone);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async markUserAsVerifiedAndAddPassword(id: string, password: string): Promise<IUser | null> {
+    try {
+      const result = await this.userRespository.markUserAsVerifiedAndAddPassword(id, password);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

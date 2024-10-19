@@ -53,7 +53,7 @@ export const rolesBasedAuthMiddleware =
           message: 'Unauthorized',
         });
       }
-      const societyId = req.headers['society-id'] as string;
+      const societyId = req.headers['x-society-id'] as string;
 
       if (!societyId) {
         return handleError(res, {

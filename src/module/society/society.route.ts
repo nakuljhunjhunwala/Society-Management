@@ -74,6 +74,7 @@ router.post(
  *       - Societies
  *     parameters:
  *      - $ref: '#/components/parameters/DeviceTokenHeader'
+ *      - $ref: '#/components/parameters/SocietyIdHeader'
  *     security:
  *      - bearerAuth: []
  *     responses:
@@ -86,5 +87,34 @@ router.get(
   rolesBasedAuthMiddleware(['ANY']),
   wrappedSocietyController.getMembers,
 );
+
+/**
+ * @swagger
+ * /society/my-maintenance:
+ *   get:
+ *     summary: Get my pending maintenance
+ *     description: Get my pending maintenance for the society
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *       - $ref: '#/components/parameters/SocietyIdHeader'
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: My pending maintenance
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/my-maintenance', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappedSocietyController.getMyPendingMaintenance);
 
 export default router;

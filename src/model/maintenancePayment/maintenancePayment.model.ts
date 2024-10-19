@@ -4,7 +4,6 @@ import { maintenancePaymentStatus } from '@constants/common.constants.js';
 import { Schema, model, Document } from 'mongoose';
 
 export interface IMaintenancePayment extends Document {
-  userId: Schema.Types.ObjectId;
   societyId: Schema.Types.ObjectId;
   amount: number;
   currency: string;
@@ -21,11 +20,11 @@ export interface IMaintenancePayment extends Document {
   status: maintenancePaymentStatus;
   createdAt: Date;
   updatedAt: Date;
+  flatNo: string;
 }
 
 const maintenancePaymentSchema = new Schema<IMaintenancePayment>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
@@ -44,9 +43,20 @@ const maintenancePaymentSchema = new Schema<IMaintenancePayment>(
       enum: Object.values(maintenancePaymentStatus),
       required: true,
     },
+    flatNo: { type: String, required: true },
   },
   { timestamps: true },
 );
+
+maintenancePaymentSchema.pre<IMaintenancePayment>('save', function (next) {
+  this.flatNo = this.flatNo.toUpperCase();
+  next();
+});
+
+maintenancePaymentSchema.pre<IMaintenancePayment>('findOneAndUpdate', function (next) {
+  this.flatNo = this.flatNo.toUpperCase();
+  next();
+});
 
 export const MaintenancePaymentModel = model<IMaintenancePayment>(
   'MaintenancePayment',

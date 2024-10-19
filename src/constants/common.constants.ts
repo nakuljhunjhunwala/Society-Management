@@ -10,3 +10,7 @@ export enum maintenancePaymentStatus {
   PROCESSED = 'processed',
   FAILED = 'failed',
 }
+
+export const redisKeys = {
+  mantainenceBalance: 'mantainenceBalance',
+}
