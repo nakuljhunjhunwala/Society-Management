@@ -46,18 +46,47 @@ export class SocietyController {
     }
   }
 
-  async getMyPendingMaintenance({ user, societyId }: WrappedRequest) {
+  async addMember({ body, societyId }: WrappedRequest) {
     try {
-      if (!user?.userId) {
-        throw new Error('User ID is required');
-      }
       if (!societyId) {
         throw new Error('Society ID is required');
       }
-      const result = await this.societyService.getMyPendingMaintenance(user.userId, societyId);
+      const result = await this.societyService.addMember(societyId, body);
       return result;
     } catch (error) {
       throw error;
     }
   }
+
+  async updateFlats({ body, societyId, user }: WrappedRequest) {
+    try {
+      if (!societyId) {
+        throw new Error('Society ID is required');
+      }
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
+      const result = await this.societyService.updateFlats(societyId, user.userId, body);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+  async removeMember({ societyId, params }: WrappedRequest) {
+    try {
+      if (!societyId) {
+        throw new Error('Society ID is required');
+      }
+      if (!params?.id) {
+        throw new Error('User ID is required');
+      }
+      const result = await this.societyService.removeMember(societyId, params.id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

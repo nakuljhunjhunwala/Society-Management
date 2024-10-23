@@ -24,6 +24,15 @@ export class RedisClient {
         this.attachListeners();
     }
 
+    async healthCheck(): Promise<boolean> {
+        const redisHealth = await this.client?.ping();
+        if (redisHealth === 'PONG') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static async getInstance(options?: RedisOptions): Promise<RedisClient> {
         if (!RedisClient.instance) {
             if (!options) {
@@ -49,6 +58,7 @@ export class RedisClient {
 
     private defaultReconnectStrategy(retries: number): number | Error {
         if (retries > 5) {
+            process.exit(1); // Exit the process if Redis connection fails
             return new Error('Redis retry limit exceeded');
         }
         return Math.min(retries * 100, 3000); // Exponential backoff

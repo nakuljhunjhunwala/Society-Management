@@ -14,3 +14,22 @@ export enum maintenancePaymentStatus {
 export const redisKeys = {
   mantainenceBalance: 'mantainenceBalance',
 }
+
+export enum approvalActions {
+  JOIN_SOCIETY = 'join_society',
+}
+
+export enum approvalStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+}
+
+export enum ApproverType {
+  USER = 'User',
+  ROLE = 'Role',
+}
+
+export enum InviteType {
+  JOIN_SOCIETY = 'join_society',
+}

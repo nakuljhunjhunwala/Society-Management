@@ -14,6 +14,8 @@ const tokenSchema = new Schema<IToken>({
   token: { type: String, required: true },
   valid: { type: Boolean, default: true },
   ipAddress: { type: String },
+}, {
+  timestamps: true,
 });
 
 const Token = mongoose.model<IToken>('Token', tokenSchema);

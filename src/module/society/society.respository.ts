@@ -4,6 +4,7 @@ import { SocietyModelRepository } from '@model/society/society.respository.js';
 import { IUser } from '@model/user/user.model.js';
 import { UserModelRepository } from '@model/user/user.respository.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
+import { AddMemberDto } from './dto/addMember.dto.js';
 
 export class SocietyRepository {
   private userRespository: UserModelRepository;
@@ -73,11 +74,34 @@ export class SocietyRepository {
 
   async getMyMantainancePayments(societyId: string, flatNo: string) {
     try {
-      const result = await this.mantainancePaymentRespository.getMaintenancePaymentBySoceityIdAndFlat(
+      const result = await this.mantainancePaymentRespository.getMaintenancePaymentsBySoceityIdAndFlat(
         societyId,
         flatNo,
       );
       return result || [];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addMember(societyId: string, body: AddMemberDto) {
+    try {
+      const result = await this.userRespository.addSocietyToUserWithFlats(
+        body.userId,
+        societyId,
+        body.role,
+        body.flatNos
+      )
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateFlats(societyId: string, userId: string, flats: any) {
+    try {
+      const result = await this.userRespository.updateFlats(societyId, userId, flats);
+      return result;
     } catch (error) {
       throw error;
     }

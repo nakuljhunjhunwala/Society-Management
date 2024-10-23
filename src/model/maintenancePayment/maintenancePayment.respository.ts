@@ -17,9 +17,31 @@ export class MaintenancePaymentModelRepository {
     }
   }
 
-  async getMaintenancePaymentBySoceityIdAndFlat(societyId: string, flat: string): Promise<IMaintenancePayment[] | null> {
+  async getMaintenancePaymentsBySoceityIdAndFlat(societyId: string, flat: string): Promise<IMaintenancePayment[] | null> {
     try {
-      const result = await MaintenancePaymentModel.find({ societyId, flat });
+      const result = await MaintenancePaymentModel.find({ societyId, flat }).sort({
+        "coversPeriod.to": -1,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createMaintenancePayment(data: IMaintenancePayment): Promise<IMaintenancePayment> {
+    try {
+      const result = await MaintenancePaymentModel.create(data);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getMaintenancePaymentsBySoceityIdAndFlatNos(societyId: string, flatNos: string[]): Promise<IMaintenancePayment[]> {
+    try {
+      const result = await MaintenancePaymentModel.find({ societyId, flatNo: { $in: flatNos } }).sort({
+        "coversPeriod.to": -1,
+      });
       return result;
     } catch (error) {
       throw error;

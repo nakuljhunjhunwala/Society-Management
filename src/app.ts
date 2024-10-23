@@ -31,6 +31,11 @@ app.get('/', (req, res) => {
 });
 // Register health check route
 app.use('/api', healthRoute);
+app.get('/stop', () => {
+  console.log("stopped");
+
+  process.exit(0);
+})
 app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
 app.use('/api/society', societyRoute);

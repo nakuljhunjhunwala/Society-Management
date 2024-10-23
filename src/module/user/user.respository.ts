@@ -57,4 +57,13 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async removeMemberFromSociety(societyId: string, userId: string): Promise<IUser | null> {
+    try {
+      const result = await this.userRespository.removeMemberFromSociety(societyId, userId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

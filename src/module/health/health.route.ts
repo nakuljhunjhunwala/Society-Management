@@ -22,4 +22,23 @@ router.get('/health', (req: Request, res: Response) => {
   res.status(200).json(healthStatus);
 });
 
+/**
+ * @swagger
+ * /redis-health:
+ *   get:
+ *     summary: Get my pending maintenance
+ *     description: Get my pending maintenance for the society
+ *     tags:
+ *       - Health
+ *     responses:
+ *       200:
+ *         description: Health check status
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/redis-health', async (req: Request, res: Response) => {
+  const healthStatus = await healthController.getRedisHealth();
+  res.status(200).json(healthStatus);
+});
+
 export default router;

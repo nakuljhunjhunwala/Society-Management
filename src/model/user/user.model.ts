@@ -41,7 +41,7 @@ const SocietyMembershipSchema: Schema = new Schema({
     type: [String],
     default: [],
   }
-});
+}, { _id: false });
 
 const UserSchema: Schema = new Schema(
   {

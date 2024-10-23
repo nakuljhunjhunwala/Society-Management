@@ -43,6 +43,9 @@
             ],
             "@interfaces/*": [
                 "src/interfaces/*"
+            ],
+            "@dto/*": [
+                "src/dto/*"
             ]
         }
     },

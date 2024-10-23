@@ -3,14 +3,14 @@ import { RedisClient } from '@utils/redis.util.js';
 import { redisKeys } from '@constants/common.constants.js';
 import { IUser } from '@model/user/user.model.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
+import { UserRepository } from '@module/user/user.respository.js';
 
 export class SocietyService {
   private societyRepository: SocietyRepository;
-  private redisClient: RedisClient;
-
+  private userRepository: UserRepository;
   constructor() {
     this.societyRepository = new SocietyRepository();
-    this.redisClient = RedisClient.instance;
+    this.userRepository = new UserRepository();
   }
 
   /**
@@ -66,147 +66,49 @@ export class SocietyService {
   }
 
   /**
-   * Retrieves the pending maintenance balance for a user in a specific society.
-   * 
-   * This method first attempts to fetch the balance from a Redis cache. If the balance
-   * is not found in the cache, it calculates the balance, stores it in the cache with
-   * an expiration time of one week (604800 seconds), and then returns the calculated balance.
-   * 
-   * @param userId - The ID of the user whose pending maintenance balance is to be retrieved.
-   * @param societyId - The ID of the society for which the maintenance balance is to be retrieved.
-   * @returns A promise that resolves to the pending maintenance balance.
-   * @throws Will throw an error if there is an issue retrieving or calculating the balance.
+   * Adds a member to a society.
+   *
+   * @param societyId - The ID of the society to which the member will be added.
+   * @param member - The member object containing user details.
+   * @returns A promise that resolves to the result of adding the member.
+   * @throws Will throw an error if the user is already a member of the society or if any other error occurs during the process.
    */
-  async getMyPendingMaintenance(userId: string, societyId: string) {
+  async addMember(societyId: string, member: any) {
     try {
-      const key = `${redisKeys.mantainenceBalance}:${userId}:${societyId}`;
-      const resultFromCache = await this.redisClient.get(key);
-
-      if (resultFromCache) {
-        const result = JSON.parse(resultFromCache);
-        return result;
-      }
-
-      const result = await this.calculateMaintenanceBalance(
-        userId,
+      const existingMember = await this.societyRepository.getUserBySocietyIdAndUserId(
         societyId,
+        member.userId
       );
 
-      this.redisClient.setEx(key, 604800, JSON.stringify(result));
+      if (existingMember) {
+        throw {
+          status: 400,
+          message: 'User is already a member of the society'
+        };
+      }
 
+      const result = await this.societyRepository.addMember(societyId, member);
       return result;
     } catch (error) {
       throw error;
     }
   }
 
-  /**
-   * Calculates the maintenance balance for a user in a specified society.
-   *
-   * @param userId - The ID of the user.
-   * @param societyId - The ID of the society.
-   * @returns An object containing the total due amount and the balance due for each flat.
-   * @throws {Object} Throws an error if no flats are found for the user in the specified society or if the society is not found.
-   * @throws {Object} Throws an error if the society is not found.
-   *
-   * The returned object has the following structure:
-   * - totalDue: The total maintenance amount due for the user.
-   * - flatBalances: An array of objects, each containing:
-   *   - flatNo: The flat number.
-   *   - balanceDue: The maintenance amount due for the flat.
-   */
-  private async calculateMaintenanceBalance(userId: string, societyId: string) {
-    // Fetch user and associated flats in the society in parallel
-    const [user, society] = await Promise.all([
-      this.societyRepository.getUserBySocietyIdAndUserId(societyId, userId),
-      this.societyRepository.getSocietyById(societyId)
-    ]);
-
-    const userFlats = user?.societies?.find(
-      (society) => society.societyId.toString() === societyId.toString()
-    )?.flats;
-
-    if (!userFlats || userFlats.length === 0) {
-      throw {
-        status: 404,
-        message: 'No flats found for this user in the specified society.'
-      }
+  async updateFlats(societyId: string, userId: string, flats: any) {
+    try {
+      const result = await this.societyRepository.updateFlats(societyId, userId, flats);
+      return result;
+    } catch (error) {
+      throw error;
     }
-
-    if (!society) {
-      throw {
-        status: 404,
-        message: 'Society not found'
-      }
-    }
-
-    const { maintenanceRate, maintenanceRateHistory, createdAt: societyCreationDate } = society;
-
-    // Fetch all maintenance payments in parallel
-    const payments = (await Promise.all(
-      userFlats.map(flat => this.societyRepository.getMyMantainancePayments(societyId, flat))
-    )).flat();
-
-    payments.sort((a, b) => new Date(b.coversPeriod.to).getTime() - new Date(a.coversPeriod.to).getTime());
-
-    const currentDate = new Date();
-    currentDate.setDate(1);
-    currentDate.setHours(0, 0, 0, 0);
-
-    const getRateForDate = (date: Date) => {
-      const rateRecord = maintenanceRateHistory.find(
-        (rate) =>
-          date >= new Date(rate.effectiveFrom) && date <= new Date(rate.effectiveTo)
-      );
-      return rateRecord ? rateRecord.amount : maintenanceRate.amount;
-    };
-
-    let totalDue = 0;
-    const flatBalances = userFlats.map((flat) => {
-      const flatPayments = payments.filter((payment) => payment.flatNo === flat);
-      const lastPayment = flatPayments[0];
-      let balanceDue = 0;
-      let lastPaidDate = lastPayment
-        ? new Date(lastPayment.coversPeriod.to)
-        : new Date(societyCreationDate);
-
-      if (lastPayment) {
-        lastPaidDate.setMonth(lastPaidDate.getMonth() + 1);
-        lastPaidDate.setDate(1);
-        lastPaidDate.setHours(0, 0, 0, 0);
-      }
-
-      while (lastPaidDate < currentDate) {
-        const currentRate = getRateForDate(lastPaidDate);
-        const nextRateChange = maintenanceRateHistory.find(
-          (rate) => new Date(rate.effectiveFrom) > lastPaidDate
-        );
-
-        const nextCutoffDate = nextRateChange
-          ? new Date(nextRateChange.effectiveFrom)
-          : currentDate;
-
-        nextCutoffDate.setDate(1);
-        nextCutoffDate.setHours(0, 0, 0, 0);
-
-        while (lastPaidDate < nextCutoffDate && lastPaidDate < currentDate) {
-          balanceDue += currentRate;
-          lastPaidDate.setMonth(lastPaidDate.getMonth() + 1);
-        }
-      }
-
-      totalDue += balanceDue;
-
-      return {
-        flatNo: flat,
-        balanceDue,
-      };
-    });
-
-    return {
-      totalDue,
-      flatBalances,
-    };
   }
 
+  async removeMember(societyId: string, userId: string) {
+    try {
+      const result = await this.userRepository.removeMemberFromSociety(societyId, userId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

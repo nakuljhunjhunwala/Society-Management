@@ -4,7 +4,7 @@ import { port } from '@constants/env.constants.js';
 import createRedisClient from '@config/redis.config.js';
 import { logger } from './logger/logger.js';
 
-logger.info('Logger is working'); // Add this line to see if it compiles
+logger.info('Logger is working');
 
 const PORT = port || 3000;
 
@@ -19,8 +19,9 @@ const startServer = async () => {
     app.listen(PORT, () => {
       logger.info(`Server is running on http://localhost:${PORT}`);
     });
-  } catch (error) {
-    logger.error('Database connection failed:', error);
+  } catch (error: any) {
+    logger.error(`Error: ${error.message}`);
+    console.error(error);
     process.exit(1); // Exit the process if the connection fails
   }
 };

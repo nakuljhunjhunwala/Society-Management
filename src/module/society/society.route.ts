@@ -6,7 +6,8 @@ import authMiddleware, {
 } from '@middleware/auth.middleware.js';
 import { validateRequest } from '@middleware/dto-validator.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
-import { roles } from '@constants/common.constants.js';
+import { AddMemberDto } from './dto/addMember.dto.js';
+import UpdateFlatsDto from './dto/updateFlats.dto.js';
 
 const router = Router();
 const wrappedSocietyController = new WrapperClass(
@@ -90,20 +91,26 @@ router.get(
 
 /**
  * @swagger
- * /society/my-maintenance:
- *   get:
- *     summary: Get my pending maintenance
- *     description: Get my pending maintenance for the society
+ * /society/member:
+ *   put:
+ *     summary: Add a member to the society
+ *     description: Add a member to the society
  *     tags:
  *       - Societies
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddMemberDto'
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: My pending maintenance
+ *         description: Member added successfully
  *       400:
  *         description: Bad request
  *       401:
@@ -115,6 +122,93 @@ router.get(
  *       500:
  *         description: Internal server error
  */
-router.get('/my-maintenance', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappedSocietyController.getMyPendingMaintenance);
+router.put(
+  '/member',
+  authMiddleware,
+  rolesBasedAuthMiddleware(['ADMIN', 'SECRETARY']),
+  validateRequest(AddMemberDto),
+  wrappedSocietyController.addMember,
+);
+
+/**
+ * @swagger
+ * /society/flats:
+ *   patch:
+ *     summary: Update flats
+ *     description: Update flats for the user in the society
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *       - $ref: '#/components/parameters/SocietyIdHeader'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateFlatsDto'
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Flats updated successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch(
+  '/flats',
+  authMiddleware,
+  rolesBasedAuthMiddleware(['ADMIN', 'SECRETARY']),
+  validateRequest(UpdateFlatsDto),
+  wrappedSocietyController.updateFlats,
+);
+
+/**
+ * @swagger
+ * /society/member/{id}:
+ *   delete:
+ *     summary: Remove a member from the society
+ *     description: Remove a member from the society
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *       - $ref: '#/components/parameters/SocietyIdHeader'
+ *       - name: id
+ *         in: path
+ *         description: User ID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Member removed successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete(
+  '/member/:id',
+  authMiddleware,
+  rolesBasedAuthMiddleware(['ADMIN', 'SECRETARY']),
+  wrappedSocietyController.removeMember,
+);
 
 export default router;

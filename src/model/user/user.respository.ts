@@ -118,6 +118,28 @@ class UserModelRepository {
     );
   }
 
+  async addSocietyToUserWithFlats(
+    userId: string,
+    societyId: string,
+    role: string,
+    flats: string[],
+  ): Promise<IUser | null> {
+    return await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: {
+          societies: {
+            societyId,
+            role,
+            joinedAt: new Date(),
+            flats,
+          },
+        },
+      },
+      { new: true },
+    );
+  }
+
   async getUserBySocietyIdAndUserId(societyId: string, userId: string): Promise<IUser | null> {
     console.log('societyId', societyId);
     console.log('userId', userId);
@@ -126,6 +148,52 @@ class UserModelRepository {
       _id: userId,
       'societies.societyId': societyId,
     }).lean();
+  }
+
+  async updateFlats(societyId: string, userId: string, flats: string[]): Promise<IUser | null> {
+    return await User.findOneAndUpdate(
+      {
+        _id: userId,
+        'societies.societyId': societyId,
+      },
+      {
+        $set: {
+          'societies.$.flats': flats,
+        },
+      },
+      { new: true },
+    ).lean();
+  }
+
+  async getFlats(societyId: string, userId: string): Promise<string[]> {
+    const user = await User.findOne({
+      _id: userId,
+      'societies.societyId': societyId,
+    }).lean();
+
+    if (user) {
+      const society = user?.societies?.find((society: any) => society.societyId === societyId);
+      return society ? society.flats : [];
+    }
+
+    return [];
+  }
+
+  async removeMemberFromSociety(societyId: string, userId: string): Promise<IUser | null> {
+    return await User.findOneAndUpdate(
+      {
+        _id: userId,
+        'societies.societyId': societyId,
+      },
+      {
+        $pull: {
+          societies: {
+            societyId,
+          },
+        },
+      },
+      { new: true },
+    )
   }
 }
 

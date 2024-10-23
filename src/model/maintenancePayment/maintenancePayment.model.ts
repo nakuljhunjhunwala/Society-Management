@@ -1,5 +1,3 @@
-// src/models/maintenancePayment.model.ts
-
 import { maintenancePaymentStatus } from '@constants/common.constants.js';
 import { Schema, model, Document } from 'mongoose';
 
