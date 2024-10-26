@@ -75,6 +75,26 @@ const swaggerOptions: SwaggerOptions = {
                     },
                 }
             },
+            pagination: {
+                page: {
+                    name: 'page',
+                    in: 'query',
+                    required: false,
+                    default: 1,
+                    schema: {
+                        type: 'number',
+                    }
+                },
+                limit: {
+                    name: 'limit',
+                    in: 'query',
+                    required: false,
+                    default: 10,
+                    schema: {
+                        type: 'number',
+                    }
+                }
+            }
         },
     },
     apis: glob.sync('src/**/**/*.route.ts'), // Match all route files ending with .route.ts

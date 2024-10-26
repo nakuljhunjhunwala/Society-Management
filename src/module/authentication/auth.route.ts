@@ -84,7 +84,7 @@ router.delete('/logout', authMiddleware, wrappedLoginController.logout);
 
 /**
  * @swagger
- * /auth/logAllOut:
+ * /auth/log-all-out:
  *   delete:
  *     summary: Logout all sessions of the current user
  *     tags: [Authentication]
@@ -98,7 +98,7 @@ router.delete('/logout', authMiddleware, wrappedLoginController.logout);
  *       401:
  *         description: Unauthorized
  */
-router.delete('/logAllOut', authMiddleware, wrappedLoginController.logAllOut);
+router.delete('/log-all-out', authMiddleware, wrappedLoginController.logAllOut);
 
 /**
  * @swagger

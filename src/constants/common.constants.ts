@@ -33,3 +33,8 @@ export enum ApproverType {
 export enum InviteType {
   JOIN_SOCIETY = 'join_society',
 }
+
+export const defaultPagination = {
+  limit: 10,
+  skip: 0,
+}

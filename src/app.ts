@@ -5,11 +5,16 @@ import healthRoute from '@module/health/health.route.js';
 import userRoute from '@module/user/user.route.js';
 import societyRoute from '@module/society/society.route.js';
 import authRoute from '@module/authentication/auth.route.js';
+import inviteRoute from '@module/invite/invite.route.js';
+import maintenanceRoute from '@module/maintenance/maintenance.route.js';
+import approvalRoute from '@module/approval/approval.route.js';
+import deviceTokenRoute from '@module/deviceToken/deviceToken.route.js';
 import apiWatcher from './middleware/api-watcher.middleware.js';
 import { generateDeviceIdMiddleware } from './middleware/deviceId-generator.middleware.js';
 import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import { swaggerDocs, swaggerUiOptions } from '@config/swagger.config.js';
+import router from '@module/invite/invite.route.js';
 const app = express();
 
 // Serve Swagger API documentation
@@ -31,13 +36,12 @@ app.get('/', (req, res) => {
 });
 // Register health check route
 app.use('/api', healthRoute);
-app.get('/stop', () => {
-  console.log("stopped");
-
-  process.exit(0);
-})
 app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
 app.use('/api/society', societyRoute);
+app.use('/api/invite', inviteRoute);
+app.use('/api/maintenance', maintenanceRoute);
+app.use('/api/approval', approvalRoute);
+app.use('/api/device-token', deviceTokenRoute);
 
 export default app;
