@@ -22,11 +22,15 @@ export class FirebaseService {
             "universe_domain": "googleapis.com"
         };
 
-      console.error(JSON.stringify(serviceFile, null, 4),"test")
+      console.log(admin.credential,"cred");
+      console.log(admin.credential?.cert,"cred");
       
-        this.firebase = admin.initializeApp({
-            credential: admin.credential.cert(serviceFile as admin.ServiceAccount),
-        });
+      
+      const existingApp = admin.apps.length ? admin.app() : admin.initializeApp({
+  credential: admin.credential?.cert(serviceFile as admin.ServiceAccount),
+});
+      
+        this.firebase = existingApp;
     }
 
     public static getInstance(): FirebaseService {
