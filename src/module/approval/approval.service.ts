@@ -1,18 +1,22 @@
 import { IApproval } from "@model/approval/approval.model.js";
 import CreateApprovalDto from "./dto/createApproval.dto.js";
 import { ApprovalRepository } from "./approval.respository.js";
-import { approvalStatus, ApproverType, InviteType } from "@constants/common.constants.js";
+import { approvalStatus, ApproverType, InviteType, notificationMessages } from "@constants/common.constants.js";
 import { SocietyRepository } from "@module/society/society.respository.js";
+import { DeviceTokenService } from "@module/deviceToken/deviceToken.service.js";
+import { INotificationData } from "@interfaces/notificationData.interface.js";
 
 
 export class ApprovalService {
 
   private approvalRepository: ApprovalRepository;
   private societyRepository: SocietyRepository
+  private deviceTokenService: DeviceTokenService;
 
   constructor() {
     this.approvalRepository = new ApprovalRepository();
     this.societyRepository = new SocietyRepository();
+    this.deviceTokenService = new DeviceTokenService();
   }
 
   async createApproval(userId: string, body: CreateApprovalDto) {
@@ -28,6 +32,25 @@ export class ApprovalService {
       }
 
       const result = await this.approvalRepository.createApproval(data);
+
+      try {
+        const payload: INotificationData = {
+          title: notificationMessages.APPROVAL_REQUEST.title,
+          message: notificationMessages.APPROVAL_REQUEST.body,
+          data: {
+            type: 'approval',
+            id: result._id,
+          }
+        }
+        if (ApproverType.ROLE === result.approverType) {
+          await this.deviceTokenService.sendNotificationByRole(result.approvers[0], result.societyId as any, payload);
+        } else {
+          await this.deviceTokenService.sendNotificationToUsers(result.approvers, payload);
+        }
+      } catch (error) {
+        logger.error('Error sending notification to approvers', error);
+      }
+
       return result;
     } catch (error) {
       throw error;
@@ -66,6 +89,21 @@ export class ApprovalService {
       if (isAuthorized) {
         const result = await this.approvalRepository.approveApproval(approvalId, userId);
         await this.processApproval(result!, userId);
+
+        try {
+          const payload: INotificationData = {
+            title: notificationMessages.APPROVAL_APPROVED.title,
+            message: notificationMessages.APPROVAL_APPROVED.body,
+            data: {
+              type: 'approval',
+              id: result!._id,
+            }
+          }
+          await this.deviceTokenService.sendNotificationToUsers(result!.requestedBy as any, payload);
+        } catch (error) {
+          logger.error('Error sending notification to approved person', error);
+        }
+
         return result;
       } else {
         throw {
@@ -91,6 +129,19 @@ export class ApprovalService {
       const isAuthorized = this.checkApprovalAuthorization(userId, myRole!, approval!);
       if (isAuthorized) {
         const result = await this.approvalRepository.rejectApproval(approvalId, userId, reason);
+        try {
+          const payload: INotificationData = {
+            title: notificationMessages.APPROVAL_REJECTED.title,
+            message: notificationMessages.APPROVAL_REJECTED.body,
+            data: {
+              type: 'approval',
+              id: result!._id,
+            }
+          }
+          await this.deviceTokenService.sendNotificationToUsers(result!.requestedBy as any, payload);
+        } catch (error) {
+          logger.error('Error sending notification to rejected person', error);
+        }
         return result;
       } else {
         throw {

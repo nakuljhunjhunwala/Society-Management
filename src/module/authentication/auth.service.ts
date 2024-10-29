@@ -8,14 +8,22 @@ import {
 } from '@utils/jwt.util.js';
 import { UserRepository } from '@module/user/user.respository.js';
 import { IUser } from '@model/user/user.model.js';
+import { DeviceTokenRepository } from '@module/deviceToken/deviceToken.respository.js';
+import { EmailService } from '@services/sendgrid.service.js';
+import { sendgridTemplates } from '@constants/common.constants.js';
+import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
 
 export class AuthService {
   private authRepository: AuthRepository;
   private userRespository: UserRepository;
+  private deviceTokenRepository: DeviceTokenRepository;
+  private emailService: EmailService;
 
   constructor() {
     this.authRepository = new AuthRepository();
     this.userRespository = new UserRepository();
+    this.deviceTokenRepository = new DeviceTokenRepository();
+    this.emailService = EmailService.getInstance();
   }
 
   async register(
@@ -64,6 +72,12 @@ export class AuthService {
         password,
       );
 
+      try {
+        await this.deviceTokenRepository.invalidateDeviceTokenByDeviceId(deviceId);
+      } catch (error) {
+        logger.error("Error in invalidating device token", error);
+      }
+
       const payload = this.generatePayload(userDetails!);
 
       const token = generateAccessToken(payload);
@@ -102,7 +116,10 @@ export class AuthService {
 
       let newRefreshToken = refreshToken;
 
-      const newToken = generateRefreshToken(payload);
+      const user = await this.userRespository.getUserById(userId);
+      const newPayload = this.generatePayload(user!);
+
+      const newToken = generateRefreshToken(newPayload);
       tokenDoc.token = refreshToken;
       const updatedData = await this.authRepository.updateToken(
         tokenDoc._id as string,
@@ -122,6 +139,11 @@ export class AuthService {
   async logout(userId: string, deviceId: string) {
     try {
       const result = await this.authRepository.revoke(userId, deviceId);
+      try {
+        await this.deviceTokenRepository.invalidateDeviceTokenByDeviceId(deviceId);
+      } catch (error) {
+        logger.error("Error in logging out", error);
+      }
       return result;
     } catch (error) {
       throw error;
@@ -131,6 +153,11 @@ export class AuthService {
   async logAlOut(userId: string) {
     try {
       const result = await this.authRepository.revokeAll(userId);
+      try {
+        await this.deviceTokenRepository.invalidateDeviceTokenByUserId(userId);
+      } catch (error) {
+        logger.error("Error in logging all user out", error);
+      }
       return result;
     } catch (error) {
       throw error;
@@ -150,4 +177,58 @@ export class AuthService {
 
     return payload;
   }
+
+  async addEmail(userId: string, email: string) {
+
+    const user = await this.userRespository.getUserById(userId);
+
+    if (user.email) {
+      throw {
+        status: 400,
+        message: 'Email already exists',
+      };
+    }
+
+    const otpData = await this.authRepository.createOtp(userId, {
+      email: email,
+    });
+
+    const emailData = {
+      name: user.username,
+      otp: otpData.otp,
+    }
+
+    await this.emailService.sendEmailViaTemplate(email, sendgridTemplates.EMAIL_VERIFICATION, emailData);
+
+    const data = {
+      sessionId: otpData.sessionId,
+    }
+
+    return data;
+  }
+
+  async verifyEmail(userId: string, body: VerifyEmailDto) {
+    const otpData = await this.authRepository.verifyOtp(userId, body.otp, body.sessionId);
+
+    if (!otpData) {
+      throw {
+        status: 400,
+        message: 'Invalid OTP',
+      };
+    }
+
+    if (!otpData.metadata.email) {
+      throw {
+        status: 400,
+        message: 'Regenerate OTP and try again',
+      }
+    }
+
+    const user = await this.userRespository.update(userId, {
+      email: otpData.metadata.email,
+    });
+
+    return user;
+  }
+
 }

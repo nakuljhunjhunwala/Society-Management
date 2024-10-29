@@ -18,4 +18,55 @@ export class DeviceTokenRepository {
     }
   }
 
+  async invalidateDeviceTokenByDeviceId(deviceId: string): Promise<boolean> {
+    try {
+      const result = await this.deviceTokenRepository.invalidateDeviceTokenByDeviceId(deviceId);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async invalidateDeviceTokenByUserId(userId: string): Promise<boolean> {
+    try {
+      const result = await this.deviceTokenRepository.invalidateDeviceTokenByUserId(userId);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getDeviceTokens(userId: string): Promise<string[]> {
+    try {
+      const result = await this.deviceTokenRepository.getDeviceToken(userId);
+      const deviceTokens = result.map((deviceToken) => {
+        return deviceToken.deviceToken;
+      });
+      return deviceTokens;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getDeviceTokensByUserIds(userId: string[]): Promise<string[]> {
+    try {
+      const result = await this.deviceTokenRepository.getDeviceTokenByUserIds(userId);
+      const deviceTokens = result.map((deviceToken) => {
+        return deviceToken.deviceToken;
+      });
+      return deviceTokens;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getDeviceTokensByRoleAndSociety(role: string, societyId: string): Promise<string[]> {
+    try {
+      const result = await this.deviceTokenRepository.getDeviceTokensByRoleAndSociety(role, societyId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

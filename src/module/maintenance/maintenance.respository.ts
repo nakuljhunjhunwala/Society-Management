@@ -46,4 +46,13 @@ export class MaintenanceRepository {
     }
   }
 
+  async getMaintenancePaymentById(id: string) {
+    try {
+      const result = await this.mantainancePaymentRespository.getMaintenancePaymentById(id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

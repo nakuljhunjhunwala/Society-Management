@@ -38,3 +38,27 @@ export const defaultPagination = {
   limit: 10,
   skip: 0,
 }
+
+export const notificationMessages = {
+  APPROVAL_REQUEST: {
+    title: 'Approval Request',
+    body: 'You have a new approval request',
+  },
+  APPROVAL_APPROVED: {
+    title: 'Approval Approved',
+    body: 'Your approval request has been approved',
+  },
+  APPROVAL_REJECTED: {
+    title: 'Approval Rejected',
+    body: 'Your approval request has been rejected',
+  },
+}
+
+export const emailFromAddress = {
+  default: 'jhunjhunwalanakul@gmail.com',
+}
+
+export const sendgridTemplates = {
+  EMAIL_VERIFICATION: 'd-f13efeae8e4641acb348d28e0fcea502',
+  MAINTENANCE_RECEIPT: 'd-f1d087c8ab81433da6d09b5d7350bba1'
+}

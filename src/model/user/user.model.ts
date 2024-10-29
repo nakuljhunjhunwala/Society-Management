@@ -133,5 +133,5 @@ UserSchema.methods.comparePassword = function (
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model<IUser>('User', UserSchema);
-export default User;
+const UserModal = mongoose.model<IUser>('User', UserSchema);
+export default UserModal;

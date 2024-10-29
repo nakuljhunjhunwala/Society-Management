@@ -1,3 +1,4 @@
+import { OtpModelRespository } from '@model/otp/otp.respository.js';
 import { IToken } from '@model/token/token.model.js';
 import { TokenModelRespository } from '@model/token/token.respository.js';
 import { IUser } from '@model/user/user.model.js';
@@ -6,10 +7,12 @@ import { UserModelRepository } from '@model/user/user.respository.js';
 export class AuthRepository {
   private userRespository: UserModelRepository;
   private tokenRespository: TokenModelRespository;
+  private otpRepository: OtpModelRespository;
 
   constructor() {
     this.userRespository = new UserModelRepository();
     this.tokenRespository = new TokenModelRespository();
+    this.otpRepository = new OtpModelRespository();
   }
 
   async createUser(user: Partial<IUser>): Promise<IUser> {
@@ -86,4 +89,15 @@ export class AuthRepository {
       throw error;
     }
   }
+
+  async createOtp(userId: string, metadata = {}) {
+    const otp = await this.otpRepository.createOtp(userId, metadata);
+    return otp;
+  }
+
+  async verifyOtp(userId: string, otp: string, sessionId: string) {
+    const result = await this.otpRepository.verifyOtp(userId, sessionId, otp);
+    return result;
+  }
+
 }

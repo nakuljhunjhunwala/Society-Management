@@ -1,26 +1,26 @@
 import { roles } from '@constants/common.constants.js';
-import User, { IUser } from './user.model.js';
+import UserModal, { IUser } from './user.model.js';
 
 class UserModelRepository {
   async findByEmail(email: string): Promise<IUser | null> {
-    return User.findOne({ email }).exec();
+    return UserModal.findOne({ email }).exec();
   }
 
   async findByPhoneNo(phoneNo: number): Promise<IUser | null> {
-    return User.findOne({ phoneNo }).exec();
+    return UserModal.findOne({ phoneNo }).exec();
   }
 
   async findById(id: string): Promise<IUser | null> {
-    return User.findById(id).select('-password').exec();
+    return UserModal.findById(id).select('-password').exec();
   }
 
   async createUser(user: Partial<IUser>): Promise<IUser> {
-    const newUser = new User(user);
+    const newUser = new UserModal(user);
     return newUser.save();
   }
 
   async markUserAsVerifiedAndAddPassword(id: string, password: string): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await UserModal.findByIdAndUpdate(
       id,
       {
         hasRegistered: true,
@@ -51,23 +51,23 @@ class UserModelRepository {
     delete user.password;
     delete user.phoneNo;
 
-    return User.findByIdAndUpdate(id, user, {
+    return UserModal.findByIdAndUpdate(id, user, {
       new: true,
     }).exec() as Promise<IUser>;
   }
 
   async deleteUser(id: string): Promise<IUser> {
-    return User.findByIdAndDelete(id).exec() as Promise<IUser>;
+    return UserModal.findByIdAndDelete(id).exec() as Promise<IUser>;
   }
 
   async findSocietyMembers(societyId: string): Promise<IUser[]> {
-    return User.find({
+    return UserModal.find({
       'societies.societyId': societyId,
     }).exec();
   }
 
   async findSocietySecretary(societyId: string): Promise<IUser | null> {
-    return User.findOne({
+    return UserModal.findOne({
       'societies.societyId': societyId,
       societies: {
         $elemMatch: {
@@ -82,7 +82,7 @@ class UserModelRepository {
     societyId: string,
     role: string,
   ): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await UserModal.findByIdAndUpdate(
       userId,
       {
         $push: {
@@ -103,7 +103,7 @@ class UserModelRepository {
     role: string,
     session: any,
   ): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await UserModal.findByIdAndUpdate(
       userId,
       {
         $push: {
@@ -124,7 +124,7 @@ class UserModelRepository {
     role: string,
     flats: string[],
   ): Promise<IUser | null> {
-    return await User.findByIdAndUpdate(
+    return await UserModal.findByIdAndUpdate(
       userId,
       {
         $push: {
@@ -144,14 +144,14 @@ class UserModelRepository {
     console.log('societyId', societyId);
     console.log('userId', userId);
 
-    return await User.findOne({
+    return await UserModal.findOne({
       _id: userId,
       'societies.societyId': societyId,
     }).lean();
   }
 
   async updateFlats(societyId: string, userId: string, flats: string[]): Promise<IUser | null> {
-    return await User.findOneAndUpdate(
+    return await UserModal.findOneAndUpdate(
       {
         _id: userId,
         'societies.societyId': societyId,
@@ -166,7 +166,7 @@ class UserModelRepository {
   }
 
   async getFlats(societyId: string, userId: string): Promise<string[]> {
-    const user = await User.findOne({
+    const user = await UserModal.findOne({
       _id: userId,
       'societies.societyId': societyId,
     }).lean();
@@ -180,7 +180,7 @@ class UserModelRepository {
   }
 
   async removeMemberFromSociety(societyId: string, userId: string): Promise<IUser | null> {
-    return await User.findOneAndUpdate(
+    return await UserModal.findOneAndUpdate(
       {
         _id: userId,
         'societies.societyId': societyId,

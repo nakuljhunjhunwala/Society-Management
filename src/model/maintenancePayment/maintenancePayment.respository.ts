@@ -47,4 +47,13 @@ export class MaintenancePaymentModelRepository {
       throw error;
     }
   }
+
+  async getMaintenancePaymentById(id: string): Promise<IMaintenancePayment | null> {
+    try {
+      const result = await MaintenancePaymentModel.findById(id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

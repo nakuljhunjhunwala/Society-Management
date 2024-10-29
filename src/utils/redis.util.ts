@@ -74,16 +74,7 @@ export class RedisClient {
         }
     }
 
-    async set(key: string, value: string): Promise<void> {
-        if (!this.client) throw new Error('Redis client is not connected');
-        try {
-            await this.client.set(key, value);
-        } catch (err) {
-            console.error(`Error setting key "${key}" in Redis:`, err);
-        }
-    }
-
-    async setEx(key: string, seconds: number, value: string): Promise<void> {
+    async set(key: string, value: string, seconds: number = 86400): Promise<void> {
         if (!this.client) throw new Error('Redis client is not connected');
         try {
             await this.client.setEx(key, seconds, value);

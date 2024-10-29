@@ -56,4 +56,22 @@ export class MaintenanceController {
       throw error;
     }
   }
+
+  async generatePdf({ user, societyId, params }: WrappedRequest) {
+    try {
+      if (!user?.userId) {
+        throw new Error('User ID is required');
+      }
+      if (!societyId) {
+        throw new Error('Society ID is required');
+      }
+      if (!params?.id) {
+        throw new Error('Maintenance ID is required');
+      }
+      const result = await this.societyService.generatePdf(user.userId, societyId, params.id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

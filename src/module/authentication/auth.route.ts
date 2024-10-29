@@ -5,6 +5,8 @@ import { validateRequest } from '@middleware/dto-validator.js';
 import { RegisterUserDto } from './dto/register.dto.js';
 import { LoginUserDto } from './dto/login.dto.js';
 import authMiddleware from '@middleware/auth.middleware.js';
+import { AddEmailDto } from './dto/addEmail.dto.js';
+import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
 const router = Router();
 const wrappedLoginController = new WrapperClass(
   new AuthController(),
@@ -116,5 +118,9 @@ router.delete('/log-all-out', authMiddleware, wrappedLoginController.logAllOut);
  *         description: Unauthorized
  */
 router.get('/refresh', wrappedLoginController.refresh);
+
+router.post('/add-email', authMiddleware, validateRequest(AddEmailDto), wrappedLoginController.addEmail);
+
+router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wrappedLoginController.verifyEmail);
 
 export default router;

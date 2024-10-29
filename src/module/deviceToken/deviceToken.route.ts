@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { DeviceTokenController } from './deviceToken.controller.js';
 import authMiddleware from '@middleware/auth.middleware.js';
 import { validateRequest } from '@middleware/dto-validator.js';
+import AddDeviceTokenDto from './dto/addToken.dto.js';
 
 const router = Router();
 const wrappedDeviceTokenController = new WrapperClass(
@@ -38,6 +39,6 @@ const wrappedDeviceTokenController = new WrapperClass(
  *       500:
  *         description: Internal server error
  */
-router.post('/', authMiddleware, wrappedDeviceTokenController.addDeviceToken);
+router.post('/', authMiddleware, validateRequest(AddDeviceTokenDto), wrappedDeviceTokenController.addDeviceToken);
 
 export default router;

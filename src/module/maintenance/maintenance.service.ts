@@ -1,23 +1,27 @@
 import { MaintenanceRepository } from './maintenance.respository.js';
 import { RedisClient } from '@utils/redis.util.js';
-import { redisKeys } from '@constants/common.constants.js';
-import { IUser } from '@model/user/user.model.js';
+import { redisKeys, roles, sendgridTemplates } from '@constants/common.constants.js';
 import { SocietyRepository } from '@module/society/society.respository.js';
 import AddMaintenancePaymentDto from './dto/addMaintenancePayment.dto.js';
 import { IMaintenancePayment } from '@model/maintenancePayment/maintenancePayment.model.js';
 import { UserModelRepository } from '@model/user/user.respository.js';
+import { IMaintenanceReceipt } from '@interfaces/maintenanceReceipt.interface.js';
+import { addressToString, formatDateForEmail, generatePdf } from '@utils/common.util.js';
+import { EmailService } from '@services/sendgrid.service.js';
 
 export class MaintenanceService {
   private societyRepository: SocietyRepository;
   private redisClient: RedisClient;
   private maintenanceRepository: MaintenanceRepository;
   private userRepository: UserModelRepository;
+  private emailService: EmailService;
 
   constructor() {
     this.societyRepository = new SocietyRepository();
     this.redisClient = RedisClient.instance;
     this.maintenanceRepository = new MaintenanceRepository();
     this.userRepository = new UserModelRepository();
+    this.emailService = EmailService.getInstance();
   }
 
   async addMaintenance(userId: string, societyId: any, body: AddMaintenancePaymentDto) {
@@ -89,7 +93,7 @@ export class MaintenanceService {
         societyId,
       );
 
-      this.redisClient.setEx(key, 604800, JSON.stringify(result));
+      this.redisClient.set(key, JSON.stringify(result), 604800);
 
       return result;
     } catch (error) {
@@ -209,6 +213,80 @@ export class MaintenanceService {
       const flatNos = await this.userRepository.getFlats(societyId, userId);
       const result = await this.maintenanceRepository.getMyMantainancePaymentsForAllFlats(societyId, flatNos);
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async generatePdf(userId: string, societyId: string, maintenanceId: string) {
+    try {
+      const user = await this.userRepository.findById(userId);
+      const society = await this.societyRepository.getSocietyById(societyId);
+      const maintenance = await this.maintenanceRepository.getMaintenancePaymentById(maintenanceId)
+
+      if (!user?.email) {
+        throw {
+          status: 400,
+          message: 'User email not found'
+        }
+      }
+
+      if (!maintenance) {
+        throw {
+          status: 404,
+          message: 'Maintenance payment not found'
+        }
+      }
+
+      const isMemberOfFlat = user?.societies.some(society => {
+        const isThisSociety = society.societyId.toString() === societyId;
+
+        if (!isThisSociety) {
+          return false;
+        }
+
+        return society.flats.includes(maintenance.flatNo) || society.role === roles.SECRETARY;
+      });
+
+      if (!isMemberOfFlat) {
+        throw {
+          status: 403,
+          message: 'User is not a member of the specified flat'
+        }
+      }
+
+      let fromDate: Date | string = new Date(maintenance.coversPeriod.from);
+      let toDate: Date | string = new Date(maintenance.coversPeriod.to);
+      toDate = new Date(toDate.getFullYear(), toDate.getMonth() + 1, 0);
+      fromDate.setDate(1);
+
+      fromDate = formatDateForEmail(fromDate);
+      toDate = formatDateForEmail(toDate);
+
+
+
+      const data: IMaintenanceReceipt = {
+        finalAmount: maintenance.amount.toString(),
+        flatNo: maintenance.flatNo,
+        from: fromDate,
+        to: toDate,
+        paidAmount: maintenance.amount.toString(),
+        payerName: user?.username || '',
+        paymentMode: maintenance.paymentMethod,
+        societyName: society?.name || '',
+        societyAddress: addressToString(society?.address),
+      }
+
+      const template = (await import('@constants/htmlTemplate.constants.js')).maintenanceRecieptTemplate;
+      const fileName = `MaintenanceReceipt-${maintenanceId}`;
+      const pdf = await generatePdf(template, data, fileName);
+
+      await this.emailService.sendEmailWithAttachmentAndTemplate(user.email, sendgridTemplates.MAINTENANCE_RECEIPT, {}, pdf);
+
+      return {
+        message: 'Email sent successfully',
+        status: 200
+      }
     } catch (error) {
       throw error;
     }

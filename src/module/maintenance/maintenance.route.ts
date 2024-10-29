@@ -46,7 +46,7 @@ router.get('/pending', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappe
 /**
  * @swagger
  * /maintenance:
- *   put:
+ *   post:
  *     summary: Record maintenance
  *     description: Record maintenance for the society
  *     tags:
@@ -76,7 +76,7 @@ router.get('/pending', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappe
  *       500:
  *         description: Internal server error
  */
-router.put('/', authMiddleware, rolesBasedAuthMiddleware(["SECRETARY", "ADMIN"]), validateRequest(AddMaintenancePaymentDto), wrappedMaintenanceController.recordMaintenance);
+router.post('/', authMiddleware, rolesBasedAuthMiddleware(["SECRETARY", "ADMIN"]), validateRequest(AddMaintenancePaymentDto), wrappedMaintenanceController.addMaintenance);
 
 /**
  * @swagger
@@ -106,5 +106,40 @@ router.put('/', authMiddleware, rolesBasedAuthMiddleware(["SECRETARY", "ADMIN"])
  *         description: Internal server error
  */
 router.get('/my', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappedMaintenanceController.getMyMaintenanceRecords);
+
+/**
+ * @swagger
+ * /maintenance/generatePdf/{id}:
+ *   get:
+ *     summary: Generate PDF
+ *     description: Generate PDF for the maintenance record and send it to the user mail
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *       - $ref: '#/components/parameters/SocietyIdHeader'
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the maintenance record
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: PDF generated successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/generatePdf/:id', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappedMaintenanceController.generatePdf);
 
 export default router;

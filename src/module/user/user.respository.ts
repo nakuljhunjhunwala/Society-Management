@@ -8,7 +8,7 @@ export class UserRepository {
     this.userRespository = new UserModelRepository();
   }
 
-  async me(id: string): Promise<IUser> {
+  async getUserById(id: string): Promise<IUser> {
     try {
       const result = (await this.userRespository.findById(id)) as IUser;
       return result;
@@ -19,9 +19,6 @@ export class UserRepository {
 
   async update(id: string, user: Partial<IUser>): Promise<IUser | null> {
     try {
-      delete user.password;
-      delete user.email;
-      delete user.societies;
       delete user._id;
 
       const result = await this.userRespository.updateUser(id, user);
