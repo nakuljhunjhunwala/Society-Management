@@ -12,7 +12,7 @@ export class FirebaseService {
             "type": firebaseType,
             "project_id": firebaseProjectId,
             "private_key_id": firebasePrivateKeyId,
-            "private_key": firebasePrivateKey,
+            "private_key": firebasePrivateKey?.replace(/\\n/g, '\n'),
             "client_email": firebaseClientEmail,
             "client_id": firebaseClientId,
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
