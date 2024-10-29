@@ -1,5 +1,5 @@
 import { BatchResponse, MulticastMessage, TopicMessage } from 'firebase-admin/messaging';
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 import { firebaseClientCertUrl, firebaseClientEmail, firebaseClientId, firebasePrivateKey, firebasePrivateKeyId, firebaseProjectId, firebaseType } from '@constants/env.constants.js';
 import { makeKeyValueString } from '@utils/common.util.js';
 
