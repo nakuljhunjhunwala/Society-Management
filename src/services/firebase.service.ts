@@ -21,6 +21,9 @@ export class FirebaseService {
             "client_x509_cert_url": firebaseClientCertUrl,
             "universe_domain": "googleapis.com"
         };
+
+      console.error(JSON.stringify(serviceFile, null, 4),"test")
+      
         this.firebase = admin.initializeApp({
             credential: admin.credential.cert(serviceFile as admin.ServiceAccount),
         });
