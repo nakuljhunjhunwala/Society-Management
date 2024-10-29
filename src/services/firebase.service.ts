@@ -22,6 +22,7 @@ export class FirebaseService {
             "universe_domain": "googleapis.com"
         };
 
+      console.log(admin,"cred");
       console.log(admin.credential,"cred");
       console.log(admin.credential?.cert,"cred");
       
