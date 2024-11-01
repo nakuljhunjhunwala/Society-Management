@@ -111,7 +111,10 @@ export class SocietyModelRepository {
       );
 
       if (!user) {
-        throw new Error('User not found');
+        throw {
+          status: 400,
+          message: 'User not found',
+        };
       }
 
       // If everything is successful, commit the transaction

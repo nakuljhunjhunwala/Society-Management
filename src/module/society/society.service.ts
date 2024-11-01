@@ -4,6 +4,9 @@ import { redisKeys } from '@constants/common.constants.js';
 import { IUser } from '@model/user/user.model.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
 import { UserRepository } from '@module/user/user.respository.js';
+import { AddMemberDto } from './dto/addMember.dto.js';
+import { IFlat } from '@model/flat/flat.model.js';
+import UpdateFlatsDto from './dto/updateFlats.dto.js';
 
 export class SocietyService {
   private societyRepository: SocietyRepository;
@@ -73,7 +76,7 @@ export class SocietyService {
    * @returns A promise that resolves to the result of adding the member.
    * @throws Will throw an error if the user is already a member of the society or if any other error occurs during the process.
    */
-  async addMember(societyId: string, member: any) {
+  async addMember(societyId: string, member: AddMemberDto) {
     try {
       const existingMember = await this.societyRepository.getUserBySocietyIdAndUserId(
         societyId,
@@ -87,6 +90,34 @@ export class SocietyService {
         };
       }
 
+      const flatNos = member.flatNos;
+
+      const flats = await this.societyRepository.getFlatsBySocietyIdAndFlatNos(societyId, flatNos);
+
+      const missingFlats = flatNos.filter(flatNo => !flats.find(flat => flat.flatNo === flatNo));
+      const needOwnerUpdate = flats.filter(flat => !flat.owner).map(flat => flat._id as string);
+
+      let missingFlatsObj: IFlat[] = [];
+      if (missingFlats.length) {
+        const flatsObj = missingFlats.map(flatNo => {
+          const flat = {
+            society: societyId as any,
+            flatNo: flatNo,
+            owner: member.userId as any,
+          }
+          return flat;
+        });
+
+        missingFlatsObj = await this.societyRepository.createFlats(flatsObj);
+      }
+
+      if (needOwnerUpdate.length) {
+        await this.societyRepository.updateFlatsOwner(societyId, member.userId, needOwnerUpdate);
+      }
+
+      const allFlatsIds: string[] = [...flats, ...missingFlatsObj].map(flat => flat._id as string);
+      member.flatNos = allFlatsIds;
+
       const result = await this.societyRepository.addMember(societyId, member);
       return result;
     } catch (error) {
@@ -94,9 +125,9 @@ export class SocietyService {
     }
   }
 
-  async updateFlats(societyId: string, userId: string, flats: any) {
+  async updateFlats(societyId: string, userId: string, flats: UpdateFlatsDto) {
     try {
-      const result = await this.societyRepository.updateFlats(societyId, userId, flats);
+      const result = await this.societyRepository.updateFlats(societyId, userId, flats.flatIds);
       return result;
     } catch (error) {
       throw error;

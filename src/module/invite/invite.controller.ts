@@ -13,10 +13,16 @@ export class InviteController {
   async createInvite({ user, body, societyId }: WrappedRequest<CreateInviteDto>) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       const result = await this.inviteService.createInvite(user.userId, societyId, body);
       return result;
@@ -29,10 +35,16 @@ export class InviteController {
     try {
       const inviteId = params?.id;
       if (!inviteId) {
-        throw new Error('Invite ID is required');
+        throw {
+          status: 400,
+          message: 'Invite ID is required',
+        }
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.inviteService.getInviteById(inviteId, user.userId);
       return result;

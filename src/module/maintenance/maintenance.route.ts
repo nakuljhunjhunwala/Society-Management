@@ -21,7 +21,7 @@ const wrappedMaintenanceController = new WrapperClass(
  *     summary: Get my pending maintenance
  *     description: Get my pending maintenance for the society
  *     tags:
- *       - Societies
+ *       - Maintenance
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'
@@ -50,7 +50,7 @@ router.get('/pending', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappe
  *     summary: Record maintenance
  *     description: Record maintenance for the society
  *     tags:
- *       - Societies
+ *       - Maintenance
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'
@@ -85,7 +85,7 @@ router.post('/', authMiddleware, rolesBasedAuthMiddleware(["SECRETARY", "ADMIN"]
  *     summary: Get my maintenance records
  *     description: Get my maintenance records for the society
  *     tags:
- *       - Societies
+ *       - Maintenance
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'
@@ -114,7 +114,7 @@ router.get('/my', authMiddleware, rolesBasedAuthMiddleware(["ANY"]), wrappedMain
  *     summary: Generate PDF
  *     description: Generate PDF for the maintenance record and send it to the user mail
  *     tags:
- *       - Societies
+ *       - Maintenance
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'

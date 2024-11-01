@@ -13,10 +13,16 @@ export class ApprovalController {
   async createApproval({ user, body }: WrappedRequest<CreateApprovalDto>) {
     try {
       if (!body) {
-        throw new Error('Approval data is required');
+        throw {
+          message: 'Approval data is required',
+          status: 400,
+        };
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          message: 'User ID is required',
+          status: 400,
+        }
       }
       const result = await this.approvalService.createApproval(user.userId, body);
       return result;
@@ -28,10 +34,16 @@ export class ApprovalController {
   async getRequestedApprovals({ user, societyId, params }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          message: 'User ID is required',
+          status: 400,
+        }
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        }
       }
       const result = await this.approvalService.getRequestedApprovals(user.userId, societyId, params);
       return result;
@@ -43,13 +55,22 @@ export class ApprovalController {
   async approveApproval({ user, params, societyId }: WrappedRequest) {
     try {
       if (params?.id) {
-        throw new Error('Approval ID is required');
+        throw {
+          message: 'Approval ID is required',
+          status: 400,
+        };
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          message: 'User ID is required',
+          status: 400,
+        }
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       const result = await this.approvalService.approveApproval(user.userId, societyId, params?.id);
       return result;
@@ -61,16 +82,28 @@ export class ApprovalController {
   async rejectApproval({ user, params, body, societyId }: WrappedRequest<RejectApprovalDto>) {
     try {
       if (params?.id) {
-        throw new Error('Approval ID is required');
+        throw {
+          message: 'Approval ID is required',
+          status: 400,
+        };
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          message: 'User ID is required',
+          status: 400,
+        }
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       if (!body.reason) {
-        throw new Error('Reason is required');
+        throw {
+          message: 'Reason is required',
+          status: 400,
+        };
       }
       const result = await this.approvalService.rejectApproval(user.userId, societyId, params?.id, body.reason);
       return result;

@@ -60,8 +60,8 @@ router.post(
  *     parameters:
  *       - $ref: '#/components/parameters/DeviceTokenHeader'
  *       - $ref: '#/components/parameters/SocietyIdHeader'
- *       - $ref: '#/components/paginations/limit'
- *       - $ref: '#/components/paginations/page'
+ *       - $ref: '#/components/pagination/limit'
+ *       - $ref: '#/components/pagination/page'
  *     security:
  *       - bearerAuth: []
  *     responses:

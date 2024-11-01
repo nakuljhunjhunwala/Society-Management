@@ -62,3 +62,20 @@ export const sendgridTemplates = {
   EMAIL_VERIFICATION: 'd-f13efeae8e4641acb348d28e0fcea502',
   MAINTENANCE_RECEIPT: 'd-f1d087c8ab81433da6d09b5d7350bba1'
 }
+
+export enum OccupancyStatus {
+  VACANT = 'vacant',
+  OCCUPIED = 'occupied',
+  RENTED = 'rented',
+}
+
+export enum PlatForm {
+  ANDROID = 'android',
+  IOS = 'ios',
+}
+
+export enum UpdateType {
+  FORCE = 'force',
+  OPTIONAL = 'optional',
+  NONE = 'none',
+}

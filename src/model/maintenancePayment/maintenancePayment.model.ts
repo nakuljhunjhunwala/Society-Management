@@ -18,10 +18,10 @@ export interface IMaintenancePayment extends Document {
   status: maintenancePaymentStatus;
   createdAt: Date;
   updatedAt: Date;
-  flatNo: string;
+  flatId: string;
 }
 
-const maintenancePaymentSchema = new Schema<IMaintenancePayment>(
+const maintenancePaymentSchema = new Schema(
   {
     societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true },
     amount: { type: Number, required: true },
@@ -41,20 +41,14 @@ const maintenancePaymentSchema = new Schema<IMaintenancePayment>(
       enum: Object.values(maintenancePaymentStatus),
       required: true,
     },
-    flatNo: { type: String, required: true },
+    flatId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Flat',
+      required: true
+    },
   },
   { timestamps: true },
 );
-
-maintenancePaymentSchema.pre<IMaintenancePayment>('save', function (next) {
-  this.flatNo = this.flatNo.toUpperCase();
-  next();
-});
-
-maintenancePaymentSchema.pre<IMaintenancePayment>('findOneAndUpdate', function (next) {
-  this.flatNo = this.flatNo.toUpperCase();
-  next();
-});
 
 export const MaintenancePaymentModel = model<IMaintenancePayment>(
   'MaintenancePayment',

@@ -1,6 +1,3 @@
-// src/repositories/maintenancePayment.repository.ts
-
-import { maintenancePaymentStatus } from '@constants/common.constants.js';
 import {
   IMaintenancePayment,
   MaintenancePaymentModel,
@@ -19,7 +16,7 @@ export class MaintenancePaymentModelRepository {
 
   async getMaintenancePaymentsBySoceityIdAndFlat(societyId: string, flat: string): Promise<IMaintenancePayment[] | null> {
     try {
-      const result = await MaintenancePaymentModel.find({ societyId, flat }).sort({
+      const result = await MaintenancePaymentModel.find({ societyId, flatId: { $in: flat } }).sort({
         "coversPeriod.to": -1,
       });
       return result;
@@ -37,9 +34,9 @@ export class MaintenancePaymentModelRepository {
     }
   }
 
-  async getMaintenancePaymentsBySoceityIdAndFlatNos(societyId: string, flatNos: string[]): Promise<IMaintenancePayment[]> {
+  async getMaintenancePaymentsBySoceityIdAndFlatIds(societyId: string, flatIds: string[]): Promise<IMaintenancePayment[]> {
     try {
-      const result = await MaintenancePaymentModel.find({ societyId, flatNo: { $in: flatNos } }).sort({
+      const result = await MaintenancePaymentModel.find({ societyId, flatId: { $in: flatIds } }).sort({
         "coversPeriod.to": -1,
       });
       return result;
@@ -56,4 +53,16 @@ export class MaintenancePaymentModelRepository {
       throw error;
     }
   }
+
+  async getLastMaintenancePayment(societyId: string, flatId: string): Promise<IMaintenancePayment | null> {
+    try {
+      const result = await MaintenancePaymentModel.findOne({ societyId, flatId }).sort({
+        "coversPeriod.to": -1,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

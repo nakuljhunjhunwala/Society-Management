@@ -36,7 +36,9 @@ export class RedisClient {
     static async getInstance(options?: RedisOptions): Promise<RedisClient> {
         if (!RedisClient.instance) {
             if (!options) {
-                throw new Error('Options must be provided for the initial connection');
+                throw {
+                    message: 'Redis options are required to create a Redis client instance',
+                }
             }
             RedisClient.instance = new RedisClient(options);
             await RedisClient.instance.connect();

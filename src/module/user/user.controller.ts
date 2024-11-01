@@ -12,7 +12,10 @@ export class UserController {
   async me({ user }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.userService.me(user.userId);
       return result;
@@ -24,7 +27,10 @@ export class UserController {
   async updateMe({ user, body }: WrappedRequest<UpdateMe>) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.userService.updateMe(user.userId, body);
       return result;

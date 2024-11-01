@@ -13,11 +13,11 @@ export class MaintenanceRepository {
     this.mantainancePaymentRespository = new MaintenancePaymentModelRepository();
   }
 
-  async getMyMantainancePayments(societyId: string, flatNo: string) {
+  async getMyMantainancePayments(societyId: string, flatId: string) {
     try {
       const result = await this.mantainancePaymentRespository.getMaintenancePaymentsBySoceityIdAndFlat(
         societyId,
-        flatNo,
+        flatId,
       );
       return result || [];
     } catch (error) {
@@ -27,11 +27,20 @@ export class MaintenanceRepository {
 
   async getMyMantainancePaymentsForAllFlats(societyId: string, flatNos: string[]) {
     try {
-      const result = await this.mantainancePaymentRespository.getMaintenancePaymentsBySoceityIdAndFlatNos(
+      const result = await this.mantainancePaymentRespository.getMaintenancePaymentsBySoceityIdAndFlatIds(
         societyId,
         flatNos,
       );
       return result || [];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getLastMantainancePayment(societyId: string, flatId: string) {
+    try {
+      const result = await this.mantainancePaymentRespository.getLastMaintenancePayment(societyId, flatId);
+      return result;
     } catch (error) {
       throw error;
     }

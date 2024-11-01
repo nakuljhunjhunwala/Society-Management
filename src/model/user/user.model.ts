@@ -38,7 +38,8 @@ const SocietyMembershipSchema: Schema = new Schema({
     default: Date.now,
   },
   flats: {
-    type: [String],
+    type: [Schema.Types.ObjectId],
+    ref: 'Flat',
     default: [],
   }
 }, { _id: false });
@@ -107,23 +108,6 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
   } else {
     next();
   }
-});
-
-SocietyMembershipSchema.pre<ISocietyMembership>('save', function (next) {
-  this.flats = this.flats.map((flat) => flat.toUpperCase());
-  next();
-});
-
-SocietyMembershipSchema.pre('findOneAndUpdate', function (next) {
-  const update = this.getUpdate() as any;
-  if (!update) {
-    return next();
-  }
-  if (update.flats) {
-    update.flats = update.flats.map((flat: string) => flat.toUpperCase());
-    this.setUpdate(update);
-  }
-  next();
 });
 
 // Method to compare password

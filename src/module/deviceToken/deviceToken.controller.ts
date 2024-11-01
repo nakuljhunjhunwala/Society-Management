@@ -12,13 +12,22 @@ export class DeviceTokenController {
   async addDeviceToken({ user, body, deviceId }: WrappedRequest<AddDeviceTokenDto>) {
     try {
       if (!body?.deviceToken) {
-        throw new Error('Device token is required');
+        throw {
+          status: 400,
+          message: 'Device Token is required',
+        };
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!deviceId) {
-        throw new Error('Device ID is required');
+        throw {
+          status: 400,
+          message: 'Device ID is required',
+        }
       }
       const result = await this.deviceTokenService.addDeviceToken(user.userId, body.deviceToken, deviceId);
       return result;

@@ -9,12 +9,12 @@ import inviteRoute from '@module/invite/invite.route.js';
 import maintenanceRoute from '@module/maintenance/maintenance.route.js';
 import approvalRoute from '@module/approval/approval.route.js';
 import deviceTokenRoute from '@module/deviceToken/deviceToken.route.js';
+import settingsRoute from '@module/settings/settings.route.js';
 import apiWatcher from './middleware/api-watcher.middleware.js';
 import { generateDeviceIdMiddleware } from './middleware/deviceId-generator.middleware.js';
 import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import { swaggerDocs, swaggerUiOptions } from '@config/swagger.config.js';
-import router from '@module/invite/invite.route.js';
 const app = express();
 
 // Serve Swagger API documentation
@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
   logger.info('Root route accessed');
   res.send('Welcome to the Express TypeScript App!');
 });
-// Register health check route
+
 app.use('/api', healthRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/user', userRoute);
@@ -43,5 +43,9 @@ app.use('/api/invite', inviteRoute);
 app.use('/api/maintenance', maintenanceRoute);
 app.use('/api/approval', approvalRoute);
 app.use('/api/device-token', deviceTokenRoute);
+app.use('/api/settings', settingsRoute);
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
 
 export default app;

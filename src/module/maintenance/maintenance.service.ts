@@ -24,11 +24,11 @@ export class MaintenanceService {
     this.emailService = EmailService.getInstance();
   }
 
-  async addMaintenance(userId: string, societyId: any, body: AddMaintenancePaymentDto) {
+  async addMaintenance(societyId: any, body: AddMaintenancePaymentDto) {
     try {
       const existingPayments = await this.societyRepository.getMyMantainancePayments(
         societyId,
-        body.flatNo
+        body.flatId
       );
       const society = await this.societyRepository.getSocietyById(societyId);
 
@@ -46,7 +46,7 @@ export class MaintenanceService {
           to
         },
         amount: body.amount,
-        flatNo: body.flatNo,
+        flatId: body.flatId,
         paymentMethod: body.paymentMethod,
         paymentDate: body.paymentDate,
         status: body.paymentStatus,
@@ -143,7 +143,16 @@ export class MaintenanceService {
 
     const { maintenanceRate, maintenanceRateHistory, createdAt: societyCreationDate } = society;
 
-    const payments = await this.maintenanceRepository.getMyMantainancePaymentsForAllFlats(societyId, userFlats);
+    let payments: IMaintenancePayment[] = [];
+
+    for (const flat of userFlats) {
+      const flatPayment = await this.maintenanceRepository.getLastMantainancePayment(societyId, flat);
+      if (!flatPayment) {
+        continue;
+      }
+      payments = [...payments, flatPayment];
+    }
+
 
     payments.sort((a, b) => new Date(b.coversPeriod.to).getTime() - new Date(a.coversPeriod.to).getTime());
 
@@ -159,9 +168,11 @@ export class MaintenanceService {
       return rateRecord ? rateRecord.amount : maintenanceRate.amount;
     };
 
+    let flatsDetails = await this.societyRepository.getFlatsByIds(userFlats);
+
     let totalDue = 0;
     const flatBalances = userFlats.map((flat) => {
-      const flatPayments = payments.filter((payment) => payment.flatNo === flat);
+      const flatPayments = payments.filter((payment) => payment.flatId === flat);
       const lastPayment = flatPayments[0];
       let balanceDue = 0;
       let lastPaidDate = lastPayment
@@ -195,8 +206,10 @@ export class MaintenanceService {
 
       totalDue += balanceDue;
 
+      const flatNo = flatsDetails.find(flatDetail => flatDetail._id == flat)?.flatNo;
+
       return {
-        flatNo: flat,
+        flatNo: flatNo,
         balanceDue,
       };
     });
@@ -245,7 +258,7 @@ export class MaintenanceService {
           return false;
         }
 
-        return society.flats.includes(maintenance.flatNo) || society.role === roles.SECRETARY;
+        return society.flats.includes(maintenance.flatId) || society.role === roles.SECRETARY;
       });
 
       if (!isMemberOfFlat) {
@@ -264,10 +277,11 @@ export class MaintenanceService {
       toDate = formatDateForEmail(toDate);
 
 
+      const flatNo = await this.societyRepository.getFlatsById(maintenance.flatId) || { flatNo: '' };
 
       const data: IMaintenanceReceipt = {
         finalAmount: maintenance.amount.toString(),
-        flatNo: maintenance.flatNo,
+        flatNo: flatNo.flatNo,
         from: fromDate,
         to: toDate,
         paidAmount: maintenance.amount.toString(),

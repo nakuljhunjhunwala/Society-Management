@@ -11,10 +11,16 @@ export class MaintenanceController {
   async getMyPendingMaintenance({ user, societyId }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       const result = await this.societyService.getMyPendingMaintenance(user.userId, societyId);
       return result;
@@ -26,12 +32,18 @@ export class MaintenanceController {
   async addMaintenance({ user, body, societyId }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
-      const result = await this.societyService.addMaintenance(user.userId, societyId, body);
+      const result = await this.societyService.addMaintenance(societyId, body);
       return {
         message: 'Maintenance Payment added successfully',
         data: result,
@@ -45,10 +57,16 @@ export class MaintenanceController {
   async getMyMaintenanceRecords({ user, societyId }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       const result = await this.societyService.getMyMaintenanceRecords(user.userId, societyId);
       return result;
@@ -60,13 +78,22 @@ export class MaintenanceController {
   async generatePdf({ user, societyId, params }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       if (!params?.id) {
-        throw new Error('Maintenance ID is required');
+        throw {
+          message: 'Maintenance ID is required',
+          status: 400,
+        }
       }
       const result = await this.societyService.generatePdf(user.userId, societyId, params.id);
       return result;

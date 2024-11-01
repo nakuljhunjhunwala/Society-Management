@@ -19,7 +19,7 @@ class AddMaintenancePaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  flatNo!: string;
+  flatId!: string;
 
   @IsNumber()
   @IsNotEmpty()

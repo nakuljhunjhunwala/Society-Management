@@ -1,6 +1,7 @@
 import { WrappedRequest } from '@utils/wrapper.util.js';
 import { SocietyService } from './society.service.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
+import UpdateFlatsDto from './dto/updateFlats.dto.js';
 
 export class SocietyController {
   private societyService: SocietyService;
@@ -12,7 +13,10 @@ export class SocietyController {
   async getMySocieties({ user }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.societyService.getMySocieties(user.userId);
       return result;
@@ -24,10 +28,16 @@ export class SocietyController {
   async createSociety({ user, body }: WrappedRequest<CreateSocietyDto>) {
     try {
       if (!body) {
-        throw new Error('Society data is required');
+        throw {
+          status: 400,
+          message: 'Society data is required',
+        }
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.societyService.createSociety(user.userId, body);
       return result;
@@ -38,7 +48,10 @@ export class SocietyController {
 
   async getMembers({ societyId }: WrappedRequest) {
     try {
-      if (!societyId) throw new Error('Society ID is required');
+      if (!societyId) throw {
+        message: 'Society ID is required',
+        status: 400,
+      };
       const result = await this.societyService.getMembers(societyId);
       return result;
     } catch (error) {
@@ -49,7 +62,10 @@ export class SocietyController {
   async addMember({ body, societyId }: WrappedRequest) {
     try {
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       const result = await this.societyService.addMember(societyId, body);
       return result;
@@ -58,13 +74,19 @@ export class SocietyController {
     }
   }
 
-  async updateFlats({ body, societyId, user }: WrappedRequest) {
+  async updateFlats({ body, societyId, user }: WrappedRequest<UpdateFlatsDto>) {
     try {
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.societyService.updateFlats(societyId, user.userId, body);
       return result;
@@ -77,10 +99,16 @@ export class SocietyController {
   async removeMember({ societyId, params }: WrappedRequest) {
     try {
       if (!societyId) {
-        throw new Error('Society ID is required');
+        throw {
+          message: 'Society ID is required',
+          status: 400,
+        };
       }
       if (!params?.id) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.societyService.removeMember(societyId, params.id);
       return result;

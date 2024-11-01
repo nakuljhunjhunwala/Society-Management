@@ -22,15 +22,10 @@ export class FirebaseService {
             "universe_domain": "googleapis.com"
         };
 
-      console.log(admin,"cred");
-      console.log(admin.credential,"cred");
-      console.log(admin.credential?.cert,"cred");
-      
-      
-      const existingApp = admin.apps.length ? admin.app() : admin.initializeApp({
-  credential: admin.credential?.cert(serviceFile as admin.ServiceAccount),
-});
-      
+        const existingApp = admin.apps.length ? admin.app() : admin.initializeApp({
+            credential: admin.credential?.cert(serviceFile as admin.ServiceAccount),
+        });
+
         this.firebase = existingApp;
     }
 

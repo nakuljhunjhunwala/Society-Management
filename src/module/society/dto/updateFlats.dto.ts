@@ -4,7 +4,7 @@ class UpdateFlatsDto {
     @IsNotEmpty()
     @IsArray()
     @IsString({ each: true })
-    flatNos!: string[];
+    flatIds!: string[];
 }
 
 export default UpdateFlatsDto;

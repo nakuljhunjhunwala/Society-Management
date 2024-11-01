@@ -58,7 +58,10 @@ export class AuthController {
   async logout({ deviceId, user }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       await this.authService.logout(user?.userId, deviceId);
       return {
@@ -72,7 +75,10 @@ export class AuthController {
   async logAllOut({ user }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       await this.authService.logAlOut(user?.userId);
       return {
@@ -86,7 +92,10 @@ export class AuthController {
   async addEmail({ body, user }: WrappedRequest<AddEmailDto>) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.authService.addEmail(user?.userId, body.email);
       return {
@@ -101,7 +110,10 @@ export class AuthController {
   async verifyEmail({ body, user }: WrappedRequest) {
     try {
       if (!user?.userId) {
-        throw new Error('User ID is required');
+        throw {
+          status: 400,
+          message: 'User ID is required',
+        };
       }
       const result = await this.authService.verifyEmail(user?.userId, body.otp);
       return {

@@ -61,11 +61,17 @@ export class ApprovalService {
     try {
       const society = await this.societyRepository.getSocietyById(societyId);
       if (!society) {
-        throw new Error('Society not found');
+        throw {
+          status: 404,
+          message: 'Society not found'
+        }
       }
       const user = await this.societyRepository.getUserBySocietyIdAndUserId(societyId, userId);
       if (!user) {
-        throw new Error('User not found in society');
+        throw {
+          status: 404,
+          message: 'User not found in society'
+        }
       }
       const myRole = user.societies.find((s) => s.societyId.toString() === societyId)?.role;
       const result = await this.approvalRepository.getAllRequestedApprovals(societyId, userId, myRole!, params);
@@ -80,7 +86,10 @@ export class ApprovalService {
     try {
       const user = await this.societyRepository.getUserBySocietyIdAndUserId(societyId, userId);
       if (!user) {
-        throw new Error('User not found in society');
+        throw {
+          status: 404,
+          message: 'User not found in society'
+        };
       }
       const myRole = user.societies.find((s) => s.societyId.toString() === societyId)?.role;
 
@@ -121,7 +130,10 @@ export class ApprovalService {
     try {
       const user = await this.societyRepository.getUserBySocietyIdAndUserId(societyId, userId);
       if (!user) {
-        throw new Error('User not found in society');
+        throw {
+          status: 404,
+          message: 'User not found in society'
+        };
       }
       const myRole = user.societies.find((s) => s.societyId.toString() === societyId)?.role;
 
