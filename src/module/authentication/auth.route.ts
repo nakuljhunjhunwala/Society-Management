@@ -119,8 +119,68 @@ router.delete('/log-all-out', authMiddleware, wrappedLoginController.logAllOut);
  */
 router.get('/refresh', wrappedLoginController.refresh);
 
+/**
+ * @swagger
+ * /auth/add-email:
+ *   post:
+ *     summary: Add an email to the user
+ *     tags: [Authentication]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AddEmailDto'
+ *     responses:
+ *       200:
+ *         description: Email added successfully
+ *       400:
+ *         description: Invalid request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/add-email', authMiddleware, validateRequest(AddEmailDto), wrappedLoginController.addEmail);
 
+/**
+ * @swagger
+ * /auth/verify-email:
+ *   post:
+ *     summary: Verify the email
+ *     tags: [Authentication]
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyEmailDto'
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wrappedLoginController.verifyEmail);
 
 export default router;
