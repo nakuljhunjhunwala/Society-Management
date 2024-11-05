@@ -19,11 +19,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t myapp:latest .
+          docker build -t society-management:latest .
 
       - name: Save Docker image
         run: |
-          docker save myapp:latest -o myapp.tar
+          docker save society-management:latest -o society-management.tar
 
       - name: Copy .env file to server
         run: |
@@ -35,7 +35,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem myapp.tar ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem society-management.tar ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
       - name: Copy docker-compose.yml to server
         run: |
@@ -52,14 +52,14 @@ jobs:
             docker-compose down
             
             # Remove the specific application image
-            docker rmi myapp:latest
+            docker rmi society-management:latest
             
             # Load the new Docker image
-            docker load -i myapp.tar
+            docker load -i society-management.tar
 
             # Start the application with the new .env
             docker-compose up -d --build
-
+            
             # Clean up temporary files
-            rm -f myapp.tar
+            rm -f society-management.tar .env
           EOF
