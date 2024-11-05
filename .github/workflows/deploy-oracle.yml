@@ -11,6 +11,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Debug Private Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}"
+
       - name: Build Docker image
         run: |
           docker build -t myapp:latest .
