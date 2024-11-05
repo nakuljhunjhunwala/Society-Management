@@ -11,10 +11,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Debug Private Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}"
-
       - name: Build Docker image
         run: |
           docker build -t myapp:latest .
@@ -55,6 +51,12 @@ jobs:
             # Remove existing containers if any (optional)
             docker-compose down
 
+            # Remove the specific application image
+            docker rmi myapp:latest
+
             # Start the application
             docker-compose up -d --build
+
+            # Clean up temporary files
+            rm -f myapp.tar .env
           EOF
