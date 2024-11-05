@@ -2,7 +2,7 @@
 # FROM node:16
 
 # Use the official ARM-compatible Node.js image as the base image
-FROM arm64v8/node:16
+FROM arm64v8/node:20
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
