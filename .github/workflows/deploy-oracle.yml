@@ -1,51 +1,56 @@
-name: Deploy to Oracle Cloud or EC2
+name: Deploy to Oracle Cloud
 
 on:
-  workflow_dispatch: # Enables manual triggering from the Actions tab
+  workflow_dispatch:  # This triggers the workflow manually
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Build Docker image
-      run: |
-        docker build -t myapp:latest .
+      - name: Build Docker image
+        run: |
+          docker build -t myapp:latest .
 
-    - name: Save Docker image as tar
-      run: |
-        docker save myapp:latest -o myapp.tar
+      - name: Save Docker image
+        run: |
+          docker save myapp:latest -o myapp.tar
 
-    - name: Upload Docker image and .env file to server
-      env:
-        ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
-      run: |
-        # Save .env content into an actual .env file
-        echo "$ENV_FILE_CONTENT" > .env
+      - name: Copy .env file to server
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+        run: |
+          echo "$ENV_FILE_CONTENT" > .env
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem .env ubuntu@your-server-ip:/home/ubuntu/
 
-        # Copy files to the server
-        scp -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} myapp.tar ubuntu@your-server-ip:/home/ubuntu/
-        scp -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} .env ubuntu@your-server-ip:/home/ubuntu/
+      - name: Copy Docker image to server
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem myapp.tar ubuntu@your-server-ip:/home/ubuntu/
 
-    - name: Deploy on server
-      env:
-        DOCKER_IMAGE: myapp:latest
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} ubuntu@your-server-ip << 'EOF'
-        
-          # Load Docker image and remove the old container
-          docker load -i /home/ubuntu/myapp.tar
+      - name: Copy docker-compose.yml to server
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem docker-compose.yml ubuntu@your-server-ip:/home/ubuntu/
 
-          # Stop and remove any previous instance of the container
-          docker stop myapp || true && docker rm myapp || true
+      - name: Deploy Docker container
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@your-server-ip << 'EOF'
+            # Load Docker image
+            docker load -i myapp.tar
 
-          # Start the new container with the environment variables from .env file
-          docker run -d --env-file /home/ubuntu/.env -p 3000:3000 --name myapp myapp:latest
-          
-          # Clean up tar file and .env
-          rm /home/ubuntu/myapp.tar
-          rm /home/ubuntu/.env
-        EOF
+            # Remove existing containers if any (optional)
+            docker-compose down
+
+            # Start the application
+            docker-compose up -d --build
+          EOF
