@@ -26,25 +26,25 @@ jobs:
           echo "$ENV_FILE_CONTENT" > .env
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem .env ubuntu@your-server-ip:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem .env ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
       - name: Copy Docker image to server
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem myapp.tar ubuntu@your-server-ip:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem myapp.tar ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
       - name: Copy docker-compose.yml to server
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem docker-compose.yml ubuntu@your-server-ip:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
       - name: Deploy Docker container
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@your-server-ip << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
             # Load Docker image
             docker load -i myapp.tar
 
