@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker buildx build --platform linux/arm64 -t society-management:latest --load .
+          docker buildx build --platform linux/arm64 -t society-management:latest --load --progress=plain .
 
       - name: Save Docker image
         run: |
