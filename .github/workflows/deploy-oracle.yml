@@ -10,6 +10,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Create .env file
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+        run: |
+          echo "$ENV_FILE_CONTENT" > .env
 
       - name: Build Docker image
         run: |
@@ -20,10 +26,7 @@ jobs:
           docker save myapp:latest -o myapp.tar
 
       - name: Copy .env file to server
-        env:
-          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
         run: |
-          echo "$ENV_FILE_CONTENT" > .env
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           scp -o StrictHostKeyChecking=no -i private_key.pem .env ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
@@ -45,18 +48,18 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
-            # Load Docker image
-            docker load -i myapp.tar
-
-            # Remove existing containers if any (optional)
+            # Stop and remove old containers and images
             docker-compose down
-
+            
             # Remove the specific application image
             docker rmi myapp:latest
+            
+            # Load the new Docker image
+            docker load -i myapp.tar
 
-            # Start the application
+            # Start the application with the new .env
             docker-compose up -d --build
 
             # Clean up temporary files
-            rm -f myapp.tar .env
+            rm -f myapp.tar
           EOF
