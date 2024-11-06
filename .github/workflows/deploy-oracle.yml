@@ -43,11 +43,11 @@ jobs:
           chmod 600 private_key.pem
           scp -o StrictHostKeyChecking=no -i private_key.pem society-management.tar ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
-      - name: Copy docker-compose.yml to server
+      - name: Copy docker-compose.yml and nginx.conf to server
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem docker-compose.yml ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
+          scp -o StrictHostKeyChecking=no -i private_key.pem docker-compose.yml nginx.conf ubuntu@${{ secrets.SERVER_IP }}:/home/ubuntu/
 
       - name: Deploy Docker container
         run: |
