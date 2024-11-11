@@ -8,6 +8,8 @@ const apiWatcher = (req: Request, res: Response, next: NextFunction) => {
   logger.info('Incoming Request', {
     method,
     url,
+    ip: req.ip || req.ips.join(','),
+    realIP: req.get('X-Real-IP'),
     // headers,
     // body: JSON.stringify(body),
   });
