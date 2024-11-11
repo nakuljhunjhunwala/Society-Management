@@ -136,3 +136,6 @@ dist
 docs/
 doc/
 documentation/
+
+# Ignore firbase service account file
+service.json
