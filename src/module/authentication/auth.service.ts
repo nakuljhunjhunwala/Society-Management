@@ -129,7 +129,7 @@ export class AuthService {
         newRefreshToken = newToken;
       }
 
-      const newAccessToken = generateAccessToken(payload);
+      const newAccessToken = generateAccessToken(newPayload);
       return { accessToken: newAccessToken, refreshToken: newRefreshToken };
     } catch (err) {
       throw err;
@@ -150,7 +150,7 @@ export class AuthService {
     }
   }
 
-  async logAlOut(userId: string) {
+  async logAllOut(userId: string) {
     try {
       const result = await this.authRepository.revokeAll(userId);
       try {
@@ -165,10 +165,11 @@ export class AuthService {
   }
 
   private generatePayload(user: IUser) {
-    const payload: { userId: any; username: string; role: { [key: string]: any } } = {
+    const payload: { userId: any; username: string; role: { [key: string]: any }; isAdmin: boolean } = {
       userId: user._id,
       username: user.username,
-      role: {}
+      role: {},
+      isAdmin: user.isAdmin,
     };
 
     user.societies.forEach((society) => {

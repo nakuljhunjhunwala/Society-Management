@@ -94,7 +94,7 @@ export class SocietyRepository {
         body.userId,
         societyId,
         body.role,
-        body.flatNos
+        body.flatIds
       )
       return result;
     } catch (error) {

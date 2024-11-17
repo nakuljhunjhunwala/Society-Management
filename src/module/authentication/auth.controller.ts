@@ -80,7 +80,7 @@ export class AuthController {
           message: 'User ID is required',
         };
       }
-      await this.authService.logAlOut(user?.userId);
+      await this.authService.logAllOut(user?.userId);
       return {
         status: 200,
       };

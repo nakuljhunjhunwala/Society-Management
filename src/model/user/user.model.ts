@@ -20,6 +20,7 @@ export interface IUser extends Document {
   phoneNo: number;
   countryCode: string;
   hasRegistered: boolean;
+  isAdmin: boolean;
 }
 
 const SocietyMembershipSchema: Schema = new Schema({
@@ -80,6 +81,10 @@ const UserSchema: Schema = new Schema(
       default: '',
     },
     societies: [SocietyMembershipSchema],
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true },
 );

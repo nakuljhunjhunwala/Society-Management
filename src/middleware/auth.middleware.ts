@@ -32,6 +32,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
       userId: decoded.userId,
       username: decoded.username,
       role: decoded.role,
+      isAdmin: decoded.isAdmin,
     };
   } catch (error) {
     return handleError(res, {
@@ -53,6 +54,11 @@ export const rolesBasedAuthMiddleware =
           message: 'Unauthorized',
         });
       }
+
+      if (req.user.isAdmin) {
+        return next();
+      }
+
       const societyId = req.headers['x-society-id'] as string;
 
       if (!societyId) {

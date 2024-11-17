@@ -556,7 +556,7 @@ export class NewRelicTracker {
         newrelic.addCustomAttributes({
             'request.path': req.path,
             'request.method': req.method,
-            'request.ip': req.ip || '',
+            'request.ip': req.get('X-Real-IP') || req.ip || '',
             'request.id': this.getRequestId(req),
             'user.agent': req.get('user-agent') || '',
             'request.referer': req.get('referer') || '',

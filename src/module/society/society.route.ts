@@ -8,6 +8,7 @@ import { validateRequest } from '@middleware/dto-validator.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
 import { AddMemberDto } from './dto/addMember.dto.js';
 import UpdateFlatsDto from './dto/updateFlats.dto.js';
+import { BulkFileUploadDto } from './dto/bulkFileUpload.dto.js';
 
 const router = Router();
 const wrappedSocietyController = new WrapperClass(
@@ -209,6 +210,52 @@ router.delete(
   authMiddleware,
   rolesBasedAuthMiddleware(['ADMIN', 'SECRETARY']),
   wrappedSocietyController.removeMember,
+);
+
+/**
+ * @swagger
+ * /society/bulk/flats:
+ *   post:
+ *     summary: Create flats in bulk
+ *     description: Create flats in bulk for the society. This request requires a file upload.
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *               societyId:
+ *                 type: string
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Flats created successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/bulk/flats',
+  authMiddleware,
+  rolesBasedAuthMiddleware(['ADMIN']),
+  validateRequest(BulkFileUploadDto),
+  wrappedSocietyController.createFlats,
 );
 
 export default router;

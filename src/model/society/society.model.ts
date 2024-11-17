@@ -22,11 +22,13 @@ export interface ISociety extends Document {
   }>;
   createdAt: Date;
   updatedAt: Date;
+  logo: string;
 }
 
 const societySchema = new Schema<ISociety>(
   {
     name: { type: String, required: true },
+    logo: { type: String, default: "" },
     address: {
       street: { type: String, required: true },
       city: { type: String, required: true },

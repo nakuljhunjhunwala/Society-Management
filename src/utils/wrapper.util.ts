@@ -10,6 +10,7 @@ export interface WrappedRequest<
   U = ResponseUser,
   K = string,
   S = string,
+  F = any
 > {
   body: B;
   headers: H;
@@ -18,6 +19,7 @@ export interface WrappedRequest<
   user?: U;
   deviceId: K;
   societyId?: S;
+  files?: F;
 }
 
 type ControllerMethod<B = any, H = any, P = any, Q = any> = (
@@ -50,6 +52,7 @@ export class WrapperClass<T extends Record<string, any>> {
                 user: req.user,
                 deviceId: req.deviceId!,
                 societyId: req.societyId!,
+                files: req.files,
               };
 
               // Call the bound method with the wrapped request

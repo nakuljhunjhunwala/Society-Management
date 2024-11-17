@@ -7,6 +7,7 @@ import { UserRepository } from '@module/user/user.respository.js';
 import { AddMemberDto } from './dto/addMember.dto.js';
 import { IFlat } from '@model/flat/flat.model.js';
 import UpdateFlatsDto from './dto/updateFlats.dto.js';
+import csv from 'csv-parser';
 
 export class SocietyService {
   private societyRepository: SocietyRepository;
@@ -90,33 +91,17 @@ export class SocietyService {
         };
       }
 
-      const flatNos = member.flatNos;
+      const flats = await this.societyRepository.getFlatsByIds(member.flatIds);
 
-      const flats = await this.societyRepository.getFlatsBySocietyIdAndFlatNos(societyId, flatNos);
-
-      const missingFlats = flatNos.filter(flatNo => !flats.find(flat => flat.flatNo === flatNo));
-      const needOwnerUpdate = flats.filter(flat => !flat.owner).map(flat => flat._id as string);
-
-      let missingFlatsObj: IFlat[] = [];
-      if (missingFlats.length) {
-        const flatsObj = missingFlats.map(flatNo => {
-          const flat = {
-            society: societyId as any,
-            flatNo: flatNo,
-            owner: member.userId as any,
-          }
-          return flat;
-        });
-
-        missingFlatsObj = await this.societyRepository.createFlats(flatsObj);
-      }
+      const needOwnerUpdate = flats
+        .filter(flat => !flat.owner)
+        .map(flat => flat._id as string);
 
       if (needOwnerUpdate.length) {
         await this.societyRepository.updateFlatsOwner(societyId, member.userId, needOwnerUpdate);
       }
 
-      const allFlatsIds: string[] = [...flats, ...missingFlatsObj].map(flat => flat._id as string);
-      member.flatNos = allFlatsIds;
+      member.flatIds = flats.map(flat => flat._id as string);
 
       const result = await this.societyRepository.addMember(societyId, member);
       return result;
@@ -141,5 +126,86 @@ export class SocietyService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async createFlats(societyId: string, files: Express.Multer.File[]) {
+    try {
+      const flatsFile = files[0];
+
+      if (!flatsFile) {
+        throw {
+          status: 400,
+          message: 'File is required',
+        };
+      }
+
+      const flats = await this.parseFlatsFile(flatsFile);
+
+      await this.validateFlats(flats, societyId);
+
+
+
+      const result = await this.societyRepository.createFlats(flats);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+
+  }
+
+  private async parseFlatsFile(file: Express.Multer.File) {
+    const flats: Partial<IFlat>[] = [];
+
+    return new Promise<Partial<IFlat>[]>((resolve, reject) => {
+      const stream = file.stream.pipe(csv());
+
+      stream.on('data', async (row) => {
+        const flat: Partial<IFlat> = {
+          flatNo: row.flatNo,
+          // owner: row.owner
+        };
+
+        if (flat.flatNo) {
+          flat.flatNo = String(flat.flatNo);
+          flats.push(flat);
+        }
+
+      });
+
+      stream.on('end', () => {
+        resolve(flats);
+      });
+
+      stream.on('error', (error) => {
+        const fileError = {
+          status: 400,
+          message: error.message || 'Error parsing the file'
+        }
+        reject(fileError);
+      });
+    });
+  }
+
+  private async validateFlats(flats: Partial<IFlat>[], societyId: string) {
+    const flatNos = flats.map(flat => flat.flatNo).filter(flatNo => typeof flatNo === 'string');
+
+    if (new Set(flatNos).size !== flatNos.length) {
+      throw {
+        status: 400,
+        message: 'Duplicate flat numbers found in the file'
+      };
+    }
+
+    // Check for duplicate flat numbers in the database
+
+    const existingFlats = await this.societyRepository.getFlatsBySocietyIdAndFlatNos(societyId, flatNos);
+
+    if (existingFlats.length) {
+      throw {
+        status: 400,
+        message: 'Some Flat numbers already exist in the society'
+      };
+    }
+
   }
 }

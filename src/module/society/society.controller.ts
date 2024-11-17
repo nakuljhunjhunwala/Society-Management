@@ -2,6 +2,7 @@ import { WrappedRequest } from '@utils/wrapper.util.js';
 import { SocietyService } from './society.service.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
 import UpdateFlatsDto from './dto/updateFlats.dto.js';
+import { BulkFileUploadDto } from './dto/bulkFileUpload.dto.js';
 
 export class SocietyController {
   private societyService: SocietyService;
@@ -111,6 +112,27 @@ export class SocietyController {
         };
       }
       const result = await this.societyService.removeMember(societyId, params.id);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createFlats({ body, files }: WrappedRequest<BulkFileUploadDto>) {
+    try {
+      if (!body.societyId) {
+        throw {
+          status: 400,
+          message: 'Society ID is required',
+        };
+      }
+      if (!files?.length) {
+        throw {
+          status: 400,
+          message: 'File is required',
+        };
+      }
+      const result = await this.societyService.createFlats(body.societyId, files);
       return result;
     } catch (error) {
       throw error;

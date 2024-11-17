@@ -17,6 +17,7 @@ import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import { swaggerDocs, swaggerUiOptions } from '@config/swagger.config.js';
 import { NewRelicTracker } from '@middleware/newrelic-tracker.js';
+import multer from 'multer';
 
 const app = express();
 
@@ -31,6 +32,26 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(apiWatcher);
 const deviceIDGenerator = generateDeviceIdMiddleware();
 app.use(deviceIDGenerator);
+const storage = multer.memoryStorage();
+
+// handle all file uploads
+app.use(multer({
+  storage,
+  fileFilter(req, file, callback) {
+    if (file.size > 5 * 1024 * 1024) {
+      return callback(new Error('File size exceeds 5MB'));
+    }
+    callback(null, true);
+  },
+}).any());
+
+app.use((req, res, next) => {
+  if (!req.files) {
+    req.files = [];
+  }
+  next();
+});
+
 
 NewRelicTracker.initialize(app, {
   excludePaths: ['/api/health', '/public'],

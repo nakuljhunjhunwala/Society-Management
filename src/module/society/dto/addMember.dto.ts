@@ -9,7 +9,7 @@ export class AddMemberDto {
     @IsNotEmpty()
     @IsArray()
     @IsString({ each: true })
-    flatNos!: string[];
+    flatIds!: string[];
 
     @IsNotEmpty()
     @IsString()
