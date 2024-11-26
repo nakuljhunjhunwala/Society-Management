@@ -15,10 +15,6 @@ export class OtpModelRespository {
     }
 
     async markOtpAsInvalid(userId: string, sessionId: string) {
-        let userid: any = userId;
-        if (typeof userId === 'string') {
-            userid = new mongoose.Types.ObjectId(userId);
-        }
-        return await OtpModal.updateMany({ userId: userid, sessionId }, { isValid: false });
+        return await OtpModal.updateMany({ userId, sessionId }, { isValid: false });
     }
 }

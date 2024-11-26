@@ -115,7 +115,7 @@ export class AuthController {
           message: 'User ID is required',
         };
       }
-      const result = await this.authService.verifyEmail(user?.userId, body.otp);
+      const result = await this.authService.verifyEmail(user?.userId, body);
       return {
         status: 200,
         data: result,
