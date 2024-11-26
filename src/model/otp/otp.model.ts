@@ -1,5 +1,5 @@
 import { generateOTP } from '@utils/common.util.js';
-import { randomUUID } from 'crypto';
+import { v4 } from 'uuid';
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IOtp extends Document {
@@ -35,7 +35,7 @@ const otpSchema = new Schema({
     },
     sessionId: {
         type: String,
-        default: randomUUID(),
+        default: v4(),
     },
     metadata: {
         type: mongoose.Schema.Types.Mixed,

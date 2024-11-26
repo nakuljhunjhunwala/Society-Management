@@ -229,6 +229,7 @@ export class AuthService {
       email: otpData.metadata.email,
     });
 
+    await this.authRepository.markOtpAsInvalid(userId, body.sessionId);
     return user;
   }
 

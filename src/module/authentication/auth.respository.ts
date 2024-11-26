@@ -100,4 +100,9 @@ export class AuthRepository {
     return result;
   }
 
+  async markOtpAsInvalid(userId: string, sessionId: string) {
+    const result = await this.otpRepository.markOtpAsInvalid(userId, sessionId);
+    return result;
+  }
+
 }
