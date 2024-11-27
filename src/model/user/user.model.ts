@@ -115,6 +115,17 @@ UserSchema.pre('findOneAndUpdate', async function (next) {
   }
 });
 
+UserSchema.set('toJSON', {
+  transform: function (doc, ret) {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  },
+});
+
+
+
+
 // Method to compare password
 UserSchema.methods.comparePassword = function (
   candidatePassword: string,
