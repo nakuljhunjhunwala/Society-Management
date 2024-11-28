@@ -12,7 +12,7 @@ import { DeviceTokenRepository } from '@module/deviceToken/deviceToken.resposito
 import { EmailService } from '@services/sendgrid.service.js';
 import { OtpType, sendgridTemplates } from '@constants/common.constants.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
-import ForgetPasswordDto from './dto/forgetpassword.dto.js';
+import ForgetPasswordDto from './dto/forgetPassword.dto.js';
 import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 
 export class AuthService {

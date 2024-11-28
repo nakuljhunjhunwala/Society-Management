@@ -1,7 +1,7 @@
 import { WrappedRequest } from '@utils/wrapper.util.js';
 import { AuthService } from './auth.service.js';
 import { AddEmailDto } from './dto/addEmail.dto.js';
-import ForgetPasswordDto from './dto/forgetpassword.dto.js';
+import ForgetPasswordDto from './dto/forgetPassword.dto.js';
 
 export class AuthController {
   private authService: AuthService;

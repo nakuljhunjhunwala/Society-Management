@@ -7,7 +7,7 @@ import { LoginUserDto } from './dto/login.dto.js';
 import authMiddleware from '@middleware/auth.middleware.js';
 import { AddEmailDto } from './dto/addEmail.dto.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
-import ForgetPasswordDto from './dto/forgetpassword.dto.js';
+import ForgetPasswordDto from './dto/forgetPassword.dto.js';
 import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 const router = Router();
 const wrappedLoginController = new WrapperClass(
