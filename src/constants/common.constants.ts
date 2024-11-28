@@ -88,3 +88,8 @@ export enum OtpType {
   VERIFY_PHONE = 'verify_phone',
   NONE = 'none',
 }
+
+export enum TokenType {
+  REFRESH_TOKEN = 'refresh_token',
+  RESET_TOKEN = 'reset_token'
+}

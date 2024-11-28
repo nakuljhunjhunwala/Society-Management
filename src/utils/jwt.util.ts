@@ -24,3 +24,11 @@ export const verifyAccessToken = (token: string) => {
 export const verifyRefreshToken = (token: string) => {
   return jwt.verify(token, jwtRefreshSecret!);
 };
+
+export const resetPasswordToken = (payload: object) => {
+  return jwt.sign(payload, jwtAccessSecret!, { expiresIn: '1h' });
+}
+
+export const verifyResetPasswordToken = (token: string) => {
+  return jwt.verify(token, jwtAccessSecret!);
+}

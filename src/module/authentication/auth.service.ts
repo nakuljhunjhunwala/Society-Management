@@ -4,15 +4,19 @@ import { LoginUserDto } from './dto/login.dto.js';
 import {
   generateAccessToken,
   generateRefreshToken,
+  resetPasswordToken,
   verifyRefreshToken,
+  verifyResetPasswordToken,
 } from '@utils/jwt.util.js';
 import { UserRepository } from '@module/user/user.respository.js';
 import { IUser } from '@model/user/user.model.js';
 import { DeviceTokenRepository } from '@module/deviceToken/deviceToken.respository.js';
 import { EmailService } from '@services/sendgrid.service.js';
-import { OtpType, sendgridTemplates } from '@constants/common.constants.js';
+import { OtpType, sendgridTemplates, TokenType } from '@constants/common.constants.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
 import ForgetPasswordDto from './dto/forgetPassword.dto.js';
+import { VerifyOtpForResetPasswordDto } from './dto/verifyOtpForResetPassword.dto.js';
+import { IToken } from '@model/token/token.model.js';
 import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 
 export class AuthService {
@@ -279,10 +283,46 @@ export class AuthService {
     return data;
   }
 
-  async resetPassword(body: ResetPasswordDto) {
-    const { otp, sessionId, password, userId } = body;
+  async resetPassword(body: ResetPasswordDto, deviceId: string) {
+    const { password, resetToken } = body;
 
-    const otpData = await this.authRepository.verifyOtp(userId, sessionId, OtpType.FORGOT_PASSWORD, otp);
+    const payload = verifyResetPasswordToken(resetToken) as any;
+
+    if (payload.type !== TokenType.RESET_TOKEN) {
+      throw {
+        status: 400,
+        message: 'Invalid token',
+      };
+    }
+
+    const tokenDoc = await this.authRepository.getResetToken(
+      payload.userId,
+      deviceId,
+      resetToken,
+    );
+
+    if (!tokenDoc) {
+      throw {
+        status: 400,
+        message: 'Invalid token',
+      };
+    }
+
+
+    const user = await this.userRespository.updatePassword(payload.userId, password);
+
+    await this.authRepository.updateToken(tokenDoc._id as string, {
+      valid: false,
+    });
+
+    return user;
+
+  }
+
+  async validateOtpForResetPassword(body: VerifyOtpForResetPasswordDto, deviceId: string) {
+    const { otp, sessionId, userId } = body;
+
+    const otpData = await this.authRepository.verifyOtp(userId, otp, OtpType.FORGOT_PASSWORD, sessionId);
 
     if (!otpData) {
       throw {
@@ -291,10 +331,27 @@ export class AuthService {
       };
     }
 
-    const user = await this.userRespository.updatePassword(userId, password);
+    const token = resetPasswordToken({
+      type: TokenType.RESET_TOKEN,
+      userId: userId,
+    });
+
+
+    const data = {
+      userId: userId as any,
+      token: token,
+      type: TokenType.RESET_TOKEN,
+      valid: true,
+      deviceId: deviceId,
+    }
+
+    await this.authRepository.revoke(userId, deviceId, TokenType.RESET_TOKEN);
+    const savedToken = await this.authRepository.addToken(data);
 
     await this.authRepository.markOtpAsInvalid(userId, sessionId);
-    return user;
+    return {
+      token: savedToken.token,
+    };
   }
 
 }

@@ -146,9 +146,29 @@ export class AuthController {
     }
   }
 
-  async resetPassword({ body }: WrappedRequest) {
+  async resetPassword({ body, deviceId }: WrappedRequest) {
     try {
-      const result = await this.authService.resetPassword(body);
+      const result = await this.authService.resetPassword(body, deviceId);
+      return {
+        status: 200,
+        data: result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async validateOtpForResetPassword({ body, deviceId }: WrappedRequest) {
+    try {
+
+      if (!deviceId) {
+        throw {
+          status: 400,
+          message: 'Device ID is required',
+        };
+      }
+
+      const result = await this.authService.validateOtpForResetPassword(body, deviceId);
       return {
         status: 200,
         data: result,

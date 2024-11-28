@@ -8,6 +8,7 @@ import authMiddleware from '@middleware/auth.middleware.js';
 import { AddEmailDto } from './dto/addEmail.dto.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
 import ForgetPasswordDto from './dto/forgetPassword.dto.js';
+import { VerifyOtpForResetPasswordDto } from './dto/verifyOtpForResetPassword.dto.js';
 import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 const router = Router();
 const wrappedLoginController = new WrapperClass(
@@ -189,7 +190,7 @@ router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wr
  * @swagger
  * /auth/forgot-password:
  *   post:
- *     summary: Forgot password
+ *     summary: Begin the forgot password process
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -211,9 +212,33 @@ router.post('/forgot-password', validateRequest(ForgetPasswordDto), wrappedLogin
 
 /**
  * @swagger
+ * /auth/validate-otp-for-reset-password:
+ *   post:
+ *     summary: Validate OTP for reset password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyOtpForResetPasswordDto'
+ *     responses:
+ *       200:
+ *         description: Successful
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/validate-otp-for-reset-password', validateRequest(VerifyOtpForResetPasswordDto), wrappedLoginController.validateOtpForResetPassword);
+
+/**
+ * @swagger
  * /auth/reset-password:
  *   post:
- *     summary: Reset password
+ *     summary: Reset the password
  *     tags: [Authentication]
  *     requestBody:
  *       required: true

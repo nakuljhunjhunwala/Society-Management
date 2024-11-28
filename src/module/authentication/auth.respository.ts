@@ -1,4 +1,4 @@
-import { OtpType } from '@constants/common.constants.js';
+import { OtpType, TokenType } from '@constants/common.constants.js';
 import { OtpModelRespository } from '@model/otp/otp.respository.js';
 import { IToken } from '@model/token/token.model.js';
 import { TokenModelRespository } from '@model/token/token.respository.js';
@@ -46,7 +46,7 @@ export class AuthRepository {
 
   async getToken(userId: string, deviceId: string, token: string) {
     try {
-      const result = await this.tokenRespository.getToken(
+      const result = await this.tokenRespository.getRefreshToken(
         userId,
         deviceId,
         token,
@@ -70,11 +70,12 @@ export class AuthRepository {
     }
   }
 
-  async revoke(userId: string, deviceId: string) {
+  async revoke(userId: string, deviceId: string, type: TokenType = TokenType.REFRESH_TOKEN) {
     try {
       const result = await this.tokenRespository.revokeTokenBasedOnDeviceId(
         userId,
         deviceId,
+        type
       );
       return result;
     } catch (error) {
@@ -108,6 +109,11 @@ export class AuthRepository {
 
   async invalideOldOtp(userId: string, type: OtpType) {
     const result = await this.otpRepository.invalideOldOtp(userId, type);
+    return result;
+  }
+
+  async getResetToken(userId: string, deviceId: string, token: string) {
+    const result = await this.tokenRespository.getToken(userId, deviceId, token, TokenType.RESET_TOKEN);
     return result;
   }
 
