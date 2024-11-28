@@ -185,8 +185,52 @@ router.post('/add-email', authMiddleware, validateRequest(AddEmailDto), wrappedL
  */
 router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wrappedLoginController.verifyEmail);
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Forgot password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ForgetPasswordDto'
+ *     responses:
+ *       200:
+ *         description: Successful
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/forgot-password', validateRequest(ForgetPasswordDto), wrappedLoginController.forgotPassword);
 
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordDto'
+ *     responses:
+ *       200:
+ *         description: Successful
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/reset-password', validateRequest(ResetPasswordDto), wrappedLoginController.resetPassword);
 
 export default router;
