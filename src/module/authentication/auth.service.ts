@@ -278,6 +278,7 @@ export class AuthService {
 
     const data = {
       sessionId: otpData.sessionId,
+      userId: user._id,
     }
 
     return data;
