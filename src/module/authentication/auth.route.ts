@@ -192,6 +192,8 @@ router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wr
  *   post:
  *     summary: Begin the forgot password process
  *     tags: [Authentication]
+ *     parameters:
+ *      - $ref: '#/components/parameters/DeviceTokenHeader'
  *     requestBody:
  *       required: true
  *       content:
@@ -216,6 +218,8 @@ router.post('/forgot-password', validateRequest(ForgetPasswordDto), wrappedLogin
  *   post:
  *     summary: Validate OTP for reset password
  *     tags: [Authentication]
+ *     parameters:
+ *      - $ref: '#/components/parameters/DeviceTokenHeader'
  *     requestBody:
  *       required: true
  *       content:
@@ -240,6 +244,8 @@ router.post('/validate-otp-for-reset-password', validateRequest(VerifyOtpForRese
  *   post:
  *     summary: Reset the password
  *     tags: [Authentication]
+ *     parameters:
+ *      - $ref: '#/components/parameters/DeviceTokenHeader'
  *     requestBody:
  *       required: true
  *       content:
