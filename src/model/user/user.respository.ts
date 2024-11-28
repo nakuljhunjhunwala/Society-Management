@@ -56,6 +56,10 @@ class UserModelRepository {
     }).exec() as Promise<IUser>;
   }
 
+  async updatePassword(id: string, password: string): Promise<IUser | null> {
+    return UserModal.findOneAndUpdate({ _id: id }, { password }, { new: true }).exec();
+  }
+
   async deleteUser(id: string): Promise<IUser> {
     return UserModal.findByIdAndDelete(id).exec() as Promise<IUser>;
   }

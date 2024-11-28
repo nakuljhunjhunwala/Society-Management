@@ -10,8 +10,10 @@ import { UserRepository } from '@module/user/user.respository.js';
 import { IUser } from '@model/user/user.model.js';
 import { DeviceTokenRepository } from '@module/deviceToken/deviceToken.respository.js';
 import { EmailService } from '@services/sendgrid.service.js';
-import { sendgridTemplates } from '@constants/common.constants.js';
+import { OtpType, sendgridTemplates } from '@constants/common.constants.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
+import ForgetPasswordDto from './dto/forgetpassword.dto.js';
+import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 
 export class AuthService {
   private authRepository: AuthRepository;
@@ -190,7 +192,9 @@ export class AuthService {
       };
     }
 
-    const otpData = await this.authRepository.createOtp(userId, {
+    await this.authRepository.invalideOldOtp(userId, OtpType.VERIFY_EMAIL);
+
+    const otpData = await this.authRepository.createOtp(userId, OtpType.VERIFY_EMAIL, {
       email: email,
     });
 
@@ -209,7 +213,7 @@ export class AuthService {
   }
 
   async verifyEmail(userId: string, body: VerifyEmailDto) {
-    const otpData = await this.authRepository.verifyOtp(userId, body.otp, body.sessionId);
+    const otpData = await this.authRepository.verifyOtp(userId, body.otp, OtpType.VERIFY_EMAIL, body.sessionId);
 
     if (!otpData) {
       throw {
@@ -230,6 +234,66 @@ export class AuthService {
     });
 
     await this.authRepository.markOtpAsInvalid(userId, body.sessionId);
+    return user;
+  }
+
+  async forgotPassword(body: ForgetPasswordDto) {
+    const { email, phoneNo } = body;
+    let user = null;
+
+    if (email) {
+      user = await this.userRespository.getUserByEmail(email);
+    } else if (phoneNo) {
+      user = await this.userRespository.getUserByPhone(phoneNo);
+    }
+
+    if (!user) {
+      throw {
+        status: 400,
+        message: 'User not found',
+      };
+    }
+
+    const userEmail = user.email;
+
+    if (!userEmail) {
+      throw {
+        status: 400,
+        message: 'Email is not registered with the user, please contact admin',
+      };
+    }
+    await this.authRepository.invalideOldOtp(user._id, OtpType.FORGOT_PASSWORD);
+    const otpData = await this.authRepository.createOtp(user._id, OtpType.FORGOT_PASSWORD);
+
+    const emailData = {
+      name: user.username,
+      otp: otpData.otp,
+    }
+
+    await this.emailService.sendEmailViaTemplate(userEmail, sendgridTemplates.FORGOT_PASSWORD, emailData);
+
+    const data = {
+      sessionId: otpData.sessionId,
+    }
+
+    return data;
+  }
+
+  async resetPassword(body: ResetPasswordDto) {
+    const { otp, sessionId, password, userId } = body;
+
+    const otpData = await this.authRepository.verifyOtp(userId, sessionId, OtpType.FORGOT_PASSWORD, otp);
+
+    if (!otpData) {
+      throw {
+        status: 400,
+        message: 'Invalid OTP',
+      };
+    }
+
+    const user = await this.userRespository.updatePassword(userId, password);
+
+    await this.authRepository.markOtpAsInvalid(userId, sessionId);
     return user;
   }
 

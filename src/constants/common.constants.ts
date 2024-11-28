@@ -60,7 +60,8 @@ export const emailFromAddress = {
 
 export const sendgridTemplates = {
   EMAIL_VERIFICATION: 'd-f13efeae8e4641acb348d28e0fcea502',
-  MAINTENANCE_RECEIPT: 'd-f1d087c8ab81433da6d09b5d7350bba1'
+  MAINTENANCE_RECEIPT: 'd-f1d087c8ab81433da6d09b5d7350bba1',
+  FORGOT_PASSWORD: 'd-f91d560bdc8d452f931d0335908498eb'
 }
 
 export enum OccupancyStatus {
@@ -77,5 +78,13 @@ export enum PlatForm {
 export enum UpdateType {
   FORCE = 'force',
   OPTIONAL = 'optional',
+  NONE = 'none',
+}
+
+export enum OtpType {
+  LOGIN = 'login',
+  FORGOT_PASSWORD = 'forgot_password',
+  VERIFY_EMAIL = 'verify_email',
+  VERIFY_PHONE = 'verify_phone',
   NONE = 'none',
 }

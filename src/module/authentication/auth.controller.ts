@@ -1,6 +1,7 @@
 import { WrappedRequest } from '@utils/wrapper.util.js';
 import { AuthService } from './auth.service.js';
 import { AddEmailDto } from './dto/addEmail.dto.js';
+import ForgetPasswordDto from './dto/forgetpassword.dto.js';
 
 export class AuthController {
   private authService: AuthService;
@@ -116,6 +117,38 @@ export class AuthController {
         };
       }
       const result = await this.authService.verifyEmail(user?.userId, body);
+      return {
+        status: 200,
+        data: result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async forgotPassword({ body }: WrappedRequest<ForgetPasswordDto>) {
+    try {
+      if (!body.email && !body.phoneNo) {
+        throw {
+          status: 400,
+          message: 'Email or Phone Number is required',
+        };
+      }
+
+      const result = await this.authService.forgotPassword(body);
+      return {
+        status: 200,
+        data: result,
+      };
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword({ body }: WrappedRequest) {
+    try {
+      const result = await this.authService.resetPassword(body);
       return {
         status: 200,
         data: result,

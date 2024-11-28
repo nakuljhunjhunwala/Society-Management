@@ -1,3 +1,4 @@
+import { OtpType } from '@constants/common.constants.js';
 import mongoose, { Schema, Document } from 'mongoose';
 
 interface IOtp extends Document {
@@ -9,6 +10,7 @@ interface IOtp extends Document {
     sessionId?: string;
     isValid?: boolean;
     metadata?: any;
+    otpType?: OtpType;
 }
 
 
@@ -36,6 +38,10 @@ const otpSchema = new Schema({
     metadata: {
         type: mongoose.Schema.Types.Mixed,
         default: {}
+    },
+    otpType: {
+        type: Object.values(OtpType),
+        default: OtpType.NONE,
     }
 }, { timestamps: true });
 

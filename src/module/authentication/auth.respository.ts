@@ -1,3 +1,4 @@
+import { OtpType } from '@constants/common.constants.js';
 import { OtpModelRespository } from '@model/otp/otp.respository.js';
 import { IToken } from '@model/token/token.model.js';
 import { TokenModelRespository } from '@model/token/token.respository.js';
@@ -90,18 +91,23 @@ export class AuthRepository {
     }
   }
 
-  async createOtp(userId: string, metadata = {}) {
-    const otp = await this.otpRepository.createOtp(userId, metadata);
+  async createOtp(userId: string, type: OtpType, metadata = {}) {
+    const otp = await this.otpRepository.createOtp(userId, type, metadata);
     return otp;
   }
 
-  async verifyOtp(userId: string, otp: string, sessionId: string) {
-    const result = await this.otpRepository.verifyOtp(userId, sessionId, otp);
+  async verifyOtp(userId: string, otp: string, type: OtpType, sessionId: string) {
+    const result = await this.otpRepository.verifyOtp(userId, sessionId, type, otp);
     return result;
   }
 
   async markOtpAsInvalid(userId: string, sessionId: string) {
     const result = await this.otpRepository.markOtpAsInvalid(userId, sessionId);
+    return result;
+  }
+
+  async invalideOldOtp(userId: string, type: OtpType) {
+    const result = await this.otpRepository.invalideOldOtp(userId, type);
     return result;
   }
 

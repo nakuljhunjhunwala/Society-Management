@@ -7,6 +7,8 @@ import { LoginUserDto } from './dto/login.dto.js';
 import authMiddleware from '@middleware/auth.middleware.js';
 import { AddEmailDto } from './dto/addEmail.dto.js';
 import { VerifyEmailDto } from './dto/verifyEmail.dto.js';
+import ForgetPasswordDto from './dto/forgetpassword.dto.js';
+import { ResetPasswordDto } from './dto/resetPassword.dto.js';
 const router = Router();
 const wrappedLoginController = new WrapperClass(
   new AuthController(),
@@ -182,5 +184,9 @@ router.post('/add-email', authMiddleware, validateRequest(AddEmailDto), wrappedL
  *         description: Internal server error
  */
 router.post('/verify-email', authMiddleware, validateRequest(VerifyEmailDto), wrappedLoginController.verifyEmail);
+
+router.post('/forgot-password', validateRequest(ForgetPasswordDto), wrappedLoginController.forgotPassword);
+
+router.post('/reset-password', validateRequest(ResetPasswordDto), wrappedLoginController.resetPassword);
 
 export default router;

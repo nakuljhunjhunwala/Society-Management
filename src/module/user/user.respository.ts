@@ -28,6 +28,15 @@ export class UserRepository {
     }
   }
 
+  async updatePassword(id: string, password: string): Promise<IUser | null> {
+    try {
+      const result = await this.userRespository.updatePassword(id, password);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getUserByEmail(email: string): Promise<IUser | null> {
     try {
       const result = await this.userRespository.findByEmail(email);
