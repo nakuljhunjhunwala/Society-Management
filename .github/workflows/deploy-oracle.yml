@@ -55,7 +55,7 @@ jobs:
           chmod 600 private_key.pem
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
             # Stop and remove old containers and images
-            docker-compose down
+            docker-compose -p society-management down
             
             # Remove the specific application image
             docker rmi society-management:latest
@@ -64,7 +64,7 @@ jobs:
             docker load -i society-management.tar
 
             # Start the application with the new .env
-            docker-compose up -d --build
+            docker-compose -p society-management up -d --build
             
             # Clean up temporary files
             rm -f society-management.tar .env
