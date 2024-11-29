@@ -49,7 +49,7 @@ services:
     depends_on:
       - society-management
     restart: unless-stopped
-    command: /bin/sh -c "until curl --silent --fail http://society-management:3000; do echo 'Waiting for society-management...'; sleep 2; done; exec nginx -g 'daemon off;'"
+    command: /bin/sh -c "until curl --silent --fail http://society-management:8080; do echo 'Waiting for society-management...'; sleep 2; done; exec nginx -g 'daemon off;'"
 
   certbot:
     image: certbot/certbot
