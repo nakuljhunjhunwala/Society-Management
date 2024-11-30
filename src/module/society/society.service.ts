@@ -1,6 +1,6 @@
 import { SocietyRepository } from './society.respository.js';
 import { RedisClient } from '@utils/redis.util.js';
-import { redisKeys } from '@constants/common.constants.js';
+import { redisKeys, roles } from '@constants/common.constants.js';
 import { IUser } from '@model/user/user.model.js';
 import { CreateSocietyDto } from './dto/society.dto.js';
 import { UserRepository } from '@module/user/user.respository.js';
@@ -208,4 +208,23 @@ export class SocietyService {
     }
 
   }
+
+  async getAllSocieties() {
+    try {
+      const result = await this.societyRepository.getAllSocieties();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRoles() {
+    try {
+      const result = Object.values(roles);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

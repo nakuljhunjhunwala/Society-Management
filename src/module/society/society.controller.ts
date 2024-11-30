@@ -139,4 +139,22 @@ export class SocietyController {
     }
   }
 
+  async getAllSocieties() {
+    try {
+      const result = await this.societyService.getAllSocieties();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRoles() {
+    try {
+      const result = await this.societyService.getRoles();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }

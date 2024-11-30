@@ -3,8 +3,7 @@ import { verifyAccessToken } from '@utils/jwt.util.js'; // Adjust the path as ne
 import { handleError } from '@utils/response.util.js';
 import { roles } from '@constants/common.constants.js';
 
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  // Get the token from the Authorization header
+const extractUserFromToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,7 +16,6 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    // Verify the token
     const decoded = verifyAccessToken(token) as any;
 
     if (!decoded) {
@@ -27,7 +25,12 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    // Attach user information to the request object
+    const societyId = req.headers['x-society-id'] as string;
+
+    if (societyId) {
+      req.societyId = societyId;
+    }
+
     req.user = {
       userId: decoded.userId,
       username: decoded.username,
@@ -43,7 +46,23 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// // Object.values(roles)
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  extractUserFromToken(req, res, () => {
+    next();
+  });
+};
+
+export const authAdminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  extractUserFromToken(req, res, () => {
+    if (!req?.user?.isAdmin) {
+      return handleError(res, {
+        status: 403,
+        message: 'Unauthorized only for admin',
+      });
+    }
+    next();
+  });
+};
 
 export const rolesBasedAuthMiddleware =
   (allowedRoles: (keyof typeof roles | 'ANY')[]) =>

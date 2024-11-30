@@ -29,13 +29,13 @@ export class TokenModelRespository {
   }
 
   async revokeAllToken(userId: string) {
-    return await Token.updateMany({ userId, valid: true }, { valid: false });
+    return await Token.updateMany({ userId, valid: true }, { valid: false, expiresAt: new Date() });
   }
 
   async revokeTokenBasedOnDeviceId(userId: string, deviceId: string, type: TokenType = TokenType.REFRESH_TOKEN) {
     return await Token.updateMany(
       { userId: userId, deviceId: deviceId, valid: true, type: type },
-      { valid: false },
+      { valid: false, expiresAt: new Date() },
     );
   }
 

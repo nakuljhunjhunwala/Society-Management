@@ -2,6 +2,7 @@ import { WrapperClass } from '@utils/wrapper.util.js';
 import { Router } from 'express';
 import { SocietyController } from './society.controller.js';
 import authMiddleware, {
+  authAdminMiddleware,
   rolesBasedAuthMiddleware,
 } from '@middleware/auth.middleware.js';
 import { validateRequest } from '@middleware/dto-validator.js';
@@ -19,7 +20,7 @@ const wrappedSocietyController = new WrapperClass(
  * @swagger
  * /society/societies:
  *   get:
- *     summary: Retrieve a list of societies
+ *     summary: Retrieve a list of my societies
  *     description: Retrieve a list of societies that the current user is a part of.
  *     tags:
  *       - Societies
@@ -257,5 +258,54 @@ router.post(
   validateRequest(BulkFileUploadDto),
   wrappedSocietyController.createFlats,
 );
+
+
+/**
+ * @swagger
+ * /society/all:
+ *   get:
+ *     summary: Get all societies (Admin)
+ *     description: Get all societies for admin access only
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/DeviceTokenHeader'
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All societies
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/all', authAdminMiddleware, wrappedSocietyController.getAllSocieties);
+
+/**
+ * @swagger
+ * /society/roles:
+ *   get:
+ *     summary: Get roles
+ *     description: Get roles for the society
+ *     tags:
+ *       - Societies
+ *     parameters:
+ *       - $ref: '#/components/parameters/OptionalDeviceTokenHeader'
+ *     responses:
+ *       200:
+ *         description: Roles fetched
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/roles', wrappedSocietyController.getRoles);
 
 export default router;

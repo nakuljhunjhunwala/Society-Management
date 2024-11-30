@@ -51,6 +51,9 @@
             "@services/*": [
                 "src/services/*"
             ],
+            "@scripts/*": [
+                "src/scripts/*"
+            ],
         }
     },
     "include": [

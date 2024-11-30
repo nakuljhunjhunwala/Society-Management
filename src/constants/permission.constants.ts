@@ -25,3 +25,5 @@ const defaultPermissions: IPermission[] = [
         plans: []
     }
 ];
+
+export { defaultPermissions };

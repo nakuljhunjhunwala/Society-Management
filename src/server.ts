@@ -3,6 +3,7 @@ import { connectDB } from '@config/db.config.js';
 import { port } from '@constants/env.constants.js';
 import createRedisClient from '@config/redis.config.js';
 import { logger } from './logger/logger.js';
+import { seedPermissions } from '@scripts/seedPermission.js';
 
 logger.info('Logger is working');
 
@@ -18,6 +19,15 @@ const startServer = async () => {
     const app = (await import('./app.js')).default;
     app.listen(PORT, () => {
       logger.info(`Server is running on http://localhost:${PORT}`);
+      try {
+        seedPermissions();
+      } catch (error) {
+        if (error instanceof Error) {
+          logger.error(`Error while seeding permissions: ${error.message}`);
+        } else {
+          logger.error('Unknown error while seeding permissions', error);
+        }
+      }
     });
   } catch (error: any) {
     logger.error(`Error: ${error.message}`);

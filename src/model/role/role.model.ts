@@ -3,9 +3,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IRole extends Document {
     society_id: Schema.Types.ObjectId;
     name: string;
-    code: string;
+    role: string;
     permissions: Array<{
-        permission_id: Schema.Types.ObjectId;
+        permission_code: string;
         is_allowed: boolean;
     }>;
 }
@@ -20,14 +20,13 @@ const roleSchema = new Schema({
         type: String,
         required: true
     },
-    code: {
+    role: {
         type: String,
         required: true
     },
     permissions: [{
-        permission_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Permission',
+        permission_code: {
+            type: String,
             required: true
         },
         is_allowed: {
@@ -47,3 +46,5 @@ const roleSchema = new Schema({
 
 
 const RoleModel = mongoose.model<IRole>('Role', roleSchema);
+
+export { RoleModel, IRole };

@@ -1,6 +1,7 @@
 // src/repositories/society.repository.ts
 
 import { roles } from '@constants/common.constants.js';
+import { RoleModelRepository } from '@model/role/role.respository.js';
 import { ISociety, SocietyModel } from '@model/society/society.model.js';
 import { IUser } from '@model/user/user.model.js';
 import { UserModelRepository } from '@model/user/user.respository.js';
@@ -8,9 +9,11 @@ import mongoose, { ClientSession } from 'mongoose';
 
 export class SocietyModelRepository {
   private userRepository: UserModelRepository;
+  private roleModelRepository: RoleModelRepository;
 
   constructor() {
     this.userRepository = new UserModelRepository();
+    this.roleModelRepository = new RoleModelRepository();
   }
 
   async findByName(name: string): Promise<ISociety | null> {
@@ -82,7 +85,10 @@ export class SocietyModelRepository {
     return SocietyModel.findByIdAndDelete(id);
   }
 
-  async getAllSocieties(): Promise<ISociety[]> {
+  async getAllSocieties(skipFields?: Record<string, number>): Promise<ISociety[]> {
+    if (skipFields) {
+      return SocietyModel.find({}, skipFields);
+    }
     return SocietyModel.find();
   }
 
@@ -116,6 +122,12 @@ export class SocietyModelRepository {
           message: 'User not found',
         };
       }
+
+      // Seed roles and permissions for the society
+      await this.roleModelRepository.seedRolesAndPermissionsForSociety(
+        society._id as string,
+        session,
+      );
 
       // If everything is successful, commit the transaction
       await session.commitTransaction();

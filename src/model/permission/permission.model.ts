@@ -39,3 +39,4 @@ interface IPermission extends Document {
 
 const PermissionModel = mongoose.model<IPermission>('Permission', permissionSchema);
 
+export { PermissionModel, IPermission };

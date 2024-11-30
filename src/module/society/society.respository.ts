@@ -7,18 +7,21 @@ import { CreateSocietyDto } from './dto/society.dto.js';
 import { AddMemberDto } from './dto/addMember.dto.js';
 import { FlatModalRespository } from '@model/flat/flat.respository.js';
 import { IFlat } from '@model/flat/flat.model.js';
+import { RoleModelRepository } from '@model/role/role.respository.js';
 
 export class SocietyRepository {
   private userRespository: UserModelRepository;
   private societyRespository: SocietyModelRepository;
   private mantainancePaymentRespository: MaintenancePaymentModelRepository;
   private flatRepository: FlatModalRespository;
+  private roleModelRepository: RoleModelRepository;
 
   constructor() {
     this.userRespository = new UserModelRepository();
     this.societyRespository = new SocietyModelRepository();
     this.mantainancePaymentRespository = new MaintenancePaymentModelRepository();
     this.flatRepository = new FlatModalRespository();
+    this.roleModelRepository = new RoleModelRepository();
   }
 
   async getMySocieties(id: string): Promise<IUser['societies']> {
@@ -38,7 +41,7 @@ export class SocietyRepository {
       const result = await this.societyRespository.createSocietyAndAddRole(
         society,
         userId,
-        roles.SECRETARY,
+        roles.ADMIN,
       );
       return result;
     } catch (error) {
@@ -151,6 +154,23 @@ export class SocietyRepository {
     try {
       const result = await this.flatRepository.updateFlatsOwner(societyId, userId, flatIds);
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAllSocieties(skipAdditionalFields: boolean = false) {
+    try {
+      const skipFields = {
+        _id: 1,
+        name: 1,
+      };
+
+      if (skipAdditionalFields) {
+        return this.societyRespository.getAllSocieties(skipFields);
+      } else {
+        return this.societyRespository.getAllSocieties();
+      }
     } catch (error) {
       throw error;
     }

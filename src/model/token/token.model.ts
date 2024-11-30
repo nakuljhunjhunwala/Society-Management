@@ -8,6 +8,9 @@ interface IToken extends Document {
   valid: boolean;
   ipAddress: string;
   type: TokenType;
+  expiresAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const tokenSchema = new Schema<IToken>({
@@ -20,10 +23,15 @@ const tokenSchema = new Schema<IToken>({
     type: String,
     enum: Object.values(TokenType),
     default: TokenType.REFRESH_TOKEN,
-  }
+  },
+  expiresAt: { type: Date },
 }, {
   timestamps: true,
 });
+
+tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+const twoMonthsInSeconds = 2 * 30 * 24 * 60 * 60;
+tokenSchema.index({ updatedAt: 1 }, { expireAfterSeconds: twoMonthsInSeconds });
 
 const Token = mongoose.model<IToken>('Token', tokenSchema);
 export { Token, IToken };

@@ -3,6 +3,7 @@ export enum roles {
   ADMIN = 'admin',
   SECRETARY = 'secretary',
   SECURITY = 'security',
+  TENANT = 'tenant',
 }
 
 export enum maintenancePaymentStatus {
