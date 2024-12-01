@@ -17,6 +17,7 @@ export class RedisClient {
         if (!options?.socket?.reconnectStrategy) {
             options.socket.reconnectStrategy = this.defaultReconnectStrategy;
         }
+        console.log(this.options)
         this.client = createClient({
             password: this.options.password,
             socket: this.options.socket,
