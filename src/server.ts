@@ -12,6 +12,7 @@ const PORT = port || 3000;
 // Start the server and connect to the database
 const startServer = async () => {
   try {
+    console.log(process.env)
     await Promise.all([
       connectDB(),
       createRedisClient(),
