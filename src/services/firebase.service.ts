@@ -35,6 +35,8 @@ export class FirebaseService {
             "universe_domain": "googleapis.com"
         };
 
+        console.log(serviceFile)
+
         try {
             const existingApp = admin.apps.length ? admin.app() : admin.initializeApp({
                 credential: admin.credential?.cert(serviceFile as admin.ServiceAccount),
