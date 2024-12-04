@@ -11,7 +11,7 @@ export class HealthController {
 
   constructor() {
     // Initialize the Redis client
-    this.redisClient = RedisClient.instance;
+    this.redisClient = RedisClient.getInstance();
   }
 
   /**
