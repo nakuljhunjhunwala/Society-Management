@@ -1,7 +1,7 @@
 import { redisHost, redisPassword, redisPort } from "@constants/env.constants.js";
 import { RedisClient, RedisOptions } from "@utils/redis.util.js";
 
-async function createRedisClient(): Promise<RedisClient> {
+async function createRedisClient(): Promise<void> {
     const options: RedisOptions = {
         password: redisPassword!,
         socket: {
@@ -10,7 +10,7 @@ async function createRedisClient(): Promise<RedisClient> {
         },
     }
 
-    return await RedisClient.getInstance(options);
+    return await RedisClient.init(options);
 }
 
 export default createRedisClient;

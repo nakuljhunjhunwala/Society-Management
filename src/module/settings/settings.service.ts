@@ -3,12 +3,17 @@ import { SettingsRepository } from './settings.respository.js';
 import { ResponseUser } from '@interfaces/user.interface.js';
 import { PermissionsDto } from './dto/updatePermissions.dto.js';
 import { IRole } from '@model/role/role.model.js';
+import { RedisClient } from '@utils/redis.util.js';
+import { redisDeletePattern } from '@constants/redis.constants.js';
+import mustache from 'mustache';
 
 export class SettingsService {
   private settingsRepository: SettingsRepository;
+  private redisClient: RedisClient;
 
   constructor() {
     this.settingsRepository = new SettingsRepository();
+    this.redisClient = RedisClient.getInstance();
   }
 
   async requireUpdate(version: string, platform: string) {
@@ -134,6 +139,8 @@ export class SettingsService {
       });
 
       await Promise.all(updatedPermission);
+      const key = mustache.render(redisDeletePattern.societyRolePermissions, { societyId });
+      await this.redisClient.scanAndDelete(key);
 
       return {
         status: 200,

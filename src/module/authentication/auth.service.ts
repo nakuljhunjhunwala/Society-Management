@@ -40,16 +40,17 @@ export class AuthService {
     if (user && user.hasRegistered) {
       throw {
         status: 400,
-        message: 'User already exists',
+        message: 'User already exists use different phone number',
       };
     }
 
     let userDetails: IUser | null = null
 
+    const data: Partial<IUser> = { ...createUserDto, hasRegistered: false };
     if (user && !user?.hasRegistered) {
-      userDetails = await this.userRespository.markUserAsVerifiedAndAddPassword(user.id, createUserDto.password);
+      const id = user._id;
+      userDetails = await this.userRespository.reRegisterUser(id, data);
     } else {
-      const data: Partial<IUser> = { ...createUserDto, hasRegistered: true };
       userDetails = await this.authRepository.createUser(data);
     }
 
@@ -235,6 +236,7 @@ export class AuthService {
 
     const user = await this.userRespository.update(userId, {
       email: otpData.metadata.email,
+      hasRegistered: true,
     });
 
     await this.authRepository.markOtpAsInvalid(userId, body.sessionId);

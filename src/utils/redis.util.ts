@@ -10,7 +10,7 @@ export interface RedisOptions {
 }
 
 export class RedisClient {
-    static instance: RedisClient;
+    private static instance: RedisClient;
     private client: RedisClientType | null = null;
 
     private constructor(private options: RedisOptions) {
@@ -24,6 +24,16 @@ export class RedisClient {
         this.attachListeners();
     }
 
+    static async init(options?: RedisOptions): Promise<void> {
+        if (!options) {
+            throw {
+                message: 'Redis options are required to create a Redis client instance',
+            }
+        }
+        RedisClient.instance = new RedisClient(options);
+        await RedisClient.instance.connect();
+    }
+
     async healthCheck(): Promise<boolean> {
         const redisHealth = await this.client?.ping();
         if (redisHealth === 'PONG') {
@@ -33,16 +43,7 @@ export class RedisClient {
         }
     }
 
-    static async getInstance(options?: RedisOptions): Promise<RedisClient> {
-        if (!RedisClient.instance) {
-            if (!options) {
-                throw {
-                    message: 'Redis options are required to create a Redis client instance',
-                }
-            }
-            RedisClient.instance = new RedisClient(options);
-            await RedisClient.instance.connect();
-        }
+    static getInstance(): RedisClient {
         return RedisClient.instance;
     }
 
@@ -112,6 +113,18 @@ export class RedisClient {
             }
         } catch (err) {
             console.error('Error closing Redis connection:', err);
+        }
+    }
+
+    async scanAndDelete(pattern: string): Promise<void> {
+        if (!this.client) throw new Error('Redis client is not connected');
+        try {
+            const keys = await this.client.keys(pattern);
+            if (keys.length > 0) {
+                await this.client.del(keys);
+            }
+        } catch (err) {
+            console.error(`Error deleting keys matching pattern "${pattern}" from Redis:`, err);
         }
     }
 

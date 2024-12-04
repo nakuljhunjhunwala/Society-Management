@@ -7,7 +7,7 @@ interface IPermission {
     plans: any[];
 }
 
-const defaultPermissions: IPermission[] = [
+const defaultPermissions = [
     {
         permission_id: 1,
         name: "Add Maintenance",
@@ -24,6 +24,12 @@ const defaultPermissions: IPermission[] = [
         description: "Ability to view maintenance requests",
         plans: []
     }
-];
+] as const;
 
-export { defaultPermissions };
+type PermissionCodes = typeof defaultPermissions[number]["code"];
+
+const permissions: IPermission[] = defaultPermissions as unknown as IPermission[];;
+
+export {
+    permissions as defaultPermissions, PermissionCodes
+};

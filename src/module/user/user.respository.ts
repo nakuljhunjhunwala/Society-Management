@@ -1,11 +1,14 @@
 import { IUser } from '@model/user/user.model.js';
 import { UserModelRepository } from '@model/user/user.respository.js';
+import { AuthRepository } from '@module/authentication/auth.respository.js';
 
 export class UserRepository {
   private userRespository: UserModelRepository;
+  private authRepository: AuthRepository;
 
   constructor() {
     this.userRespository = new UserModelRepository();
+    this.authRepository = new AuthRepository();
   }
 
   async getUserById(id: string): Promise<IUser> {
@@ -55,9 +58,10 @@ export class UserRepository {
     }
   }
 
-  async markUserAsVerifiedAndAddPassword(id: string, password: string): Promise<IUser | null> {
+  async reRegisterUser(id: string, user: Partial<IUser>): Promise<IUser | null> {
     try {
-      const result = await this.userRespository.markUserAsVerifiedAndAddPassword(id, password);
+      const result = await this.userRespository.reRegisterUser(id, user);
+      await this.authRepository.revokeAll(id);
       return result;
     } catch (error) {
       throw error;

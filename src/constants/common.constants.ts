@@ -14,6 +14,7 @@ export enum maintenancePaymentStatus {
 
 export const redisKeys = {
   mantainenceBalance: 'mantainenceBalance',
+  // roles
 }
 
 export enum approvalActions {

@@ -18,7 +18,7 @@ export class MaintenanceService {
 
   constructor() {
     this.societyRepository = new SocietyRepository();
-    this.redisClient = RedisClient.instance;
+    this.redisClient = RedisClient.getInstance();
     this.maintenanceRepository = new MaintenanceRepository();
     this.userRepository = new UserModelRepository();
     this.emailService = EmailService.getInstance();

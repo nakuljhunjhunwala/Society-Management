@@ -19,15 +19,12 @@ class UserModelRepository {
     return newUser.save();
   }
 
-  async markUserAsVerifiedAndAddPassword(id: string, password: string): Promise<IUser | null> {
+  async reRegisterUser(id: string, user: Partial<IUser>): Promise<IUser | null> {
     return await UserModal.findByIdAndUpdate(
       id,
-      {
-        hasRegistered: true,
-        password,
-      },
+      user,
       { new: true },
-    )
+    ).exec();
   }
 
   async compareUserByPassword(phoneNo: number, password: string): Promise<IUser> {
